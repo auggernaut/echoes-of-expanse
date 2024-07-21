@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PlayingCard {
   final String name;
@@ -6,17 +8,80 @@ class PlayingCard {
   final String type;
   final String frontAsset; // Path to the front image asset
   final String backAsset; // Path to the back image asset
-  List<InteractiveArea> interactiveAreas;
   bool isFlipped;
 
-  PlayingCard(
-      {required this.name,
-      required this.description,
-      required this.type,
-      required this.frontAsset,
-      required this.backAsset,
-      required this.interactiveAreas,
-      this.isFlipped = false});
+  // New stats as strings
+  final String health;
+  final String attack;
+  final String cardClass; // renamed from class to avoid reserved keyword
+  final String drive;
+  final String ancestry;
+  final String background;
+  final String mission;
+  final String power;
+  final String smarts;
+  final String charm;
+  final String grit;
+
+  PlayingCard({
+    required this.name,
+    required this.description,
+    required this.type,
+    required this.frontAsset,
+    required this.backAsset,
+    this.isFlipped = false,
+    this.health = '',
+    this.attack = '',
+    this.cardClass = '',
+    this.drive = '',
+    this.ancestry = '',
+    this.background = '',
+    this.mission = '',
+    this.power = '',
+    this.smarts = '',
+    this.charm = '',
+    this.grit = '',
+  });
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'description': description,
+        'type': type,
+        'frontAsset': frontAsset,
+        'backAsset': backAsset,
+        'isFlipped': isFlipped,
+        'health': health,
+        'attack': attack,
+        'cardClass': cardClass,
+        'drive': drive,
+        'ancestry': ancestry,
+        'background': background,
+        'mission': mission,
+        'power': power,
+        'smarts': smarts,
+        'charm': charm,
+        'grit': grit,
+      };
+
+  factory PlayingCard.fromJson(Map<String, dynamic> json) => PlayingCard(
+        name: json['name'],
+        description: json['description'],
+        type: json['type'],
+        frontAsset: json['frontAsset'],
+        backAsset: json['backAsset'],
+        isFlipped: json['isFlipped'],
+        health: json['health'],
+        attack: json['attack'],
+        cardClass: json['cardClass'],
+        drive: json['drive'],
+        ancestry: json['ancestry'],
+        background: json['background'],
+        mission: json['mission'],
+        power: json['power'],
+        smarts: json['smarts'],
+        charm: json['charm'],
+        grit: json['grit'],
+      );
 }
 
 class InteractiveArea {
@@ -36,22 +101,149 @@ class Deck {
 
 class Hand {
   final List<PlayingCard> selectedCards = [];
+  Map<String, String> characterStats = {
+    'health': '',
+    'attack': '',
+    'class': '',
+    'drive': '',
+    'ancestry': '',
+    'background': '',
+    'mission': '',
+    'power': '',
+    'smarts': '',
+    'charm': '',
+    'grit': '',
+  };
 
   // Method to add a card to the hand
   void addCard(PlayingCard card) {
     if (!selectedCards.contains(card)) {
       selectedCards.add(card);
+      _updateCharacterStats();
+      _saveToLocalStorage();
     }
   }
 
   // Method to remove a card from the hand
   void removeCard(PlayingCard card) {
     selectedCards.remove(card);
+    _updateCharacterStats();
+    _saveToLocalStorage();
   }
 
-  // Method to clear the hand
-  void clearHand() {
+  // Method to update character stats
+  void _updateCharacterStats() {
+    characterStats = {
+      'health': '',
+      'attack': '',
+      'class': '',
+      'drive': '',
+      'ancestry': '',
+      'background': '',
+      'mission': '',
+      'power': '',
+      'smarts': '',
+      'charm': '',
+      'grit': '',
+    };
+
+    for (var card in selectedCards) {
+      characterStats['health'] = card.health;
+      characterStats['attack'] = card.attack;
+
+      if (card.cardClass.isNotEmpty) {
+        characterStats['class'] = card.cardClass;
+      }
+      if (card.drive.isNotEmpty) {
+        characterStats['drive'] = card.drive;
+      }
+      if (card.type == 'ancestry') {
+        characterStats['ancestry'] = card.description;
+      }
+      if (card.background.isNotEmpty) {
+        characterStats['background'] = card.background;
+      }
+      if (card.mission.isNotEmpty) {
+        characterStats['mission'] = card.mission;
+      }
+      if (card.power.isNotEmpty) {
+        characterStats['power'] = card.power;
+      }
+      if (card.smarts.isNotEmpty) {
+        characterStats['smarts'] = card.smarts;
+      }
+      if (card.charm.isNotEmpty) {
+        characterStats['charm'] = card.charm;
+      }
+      if (card.grit.isNotEmpty) {
+        characterStats['grit'] = card.grit;
+      }
+    }
+  }
+
+  // Method to load cards and stats from localStorage
+  Future<Map<String, String>> loadCards() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? cardsJson = prefs.getString('selectedCards');
+    if (cardsJson != null) {
+      List<dynamic> cardsList = jsonDecode(cardsJson);
+      selectedCards.clear();
+      selectedCards.addAll(cardsList.map((card) => PlayingCard.fromJson(card)).toList());
+    }
+    return characterStats = {
+      'health': prefs.getString('health') ?? '',
+      'attack': prefs.getString('attack') ?? '',
+      'class': prefs.getString('class') ?? '',
+      'drive': prefs.getString('drive') ?? '',
+      'ancestry': prefs.getString('ancestry') ?? '',
+      'background': prefs.getString('background') ?? '',
+      'mission': prefs.getString('mission') ?? '',
+      'power': prefs.getString('power') ?? '',
+      'smarts': prefs.getString('smarts') ?? '',
+      'charm': prefs.getString('charm') ?? '',
+      'grit': prefs.getString('grit') ?? '',
+    };
+  }
+
+  // Method to update a specific character stat and save it to localStorage
+  void updateStat(String key, String value) {
+    characterStats[key] = value;
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setString(key, value);
+    });
+  }
+
+  // Method to save cards and stats to localStorage
+  Future<void> _saveToLocalStorage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String cardsJson = jsonEncode(selectedCards.map((card) => card.toJson()).toList());
+    await prefs.setString('selectedCards', cardsJson);
+    characterStats.forEach((key, value) async {
+      await prefs.setString(key, value);
+    });
+  }
+
+  // Method to clear the hand, stats, and localStorage
+  Future<void> clearHand() async {
     selectedCards.clear();
+    characterStats = {
+      'health': '',
+      'attack': '',
+      'class': '',
+      'drive': '',
+      'ancestry': '',
+      'background': '',
+      'mission': '',
+      'power': '',
+      'smarts': '',
+      'charm': '',
+      'grit': '',
+    };
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('selectedCards');
+    for (var key in characterStats.keys) {
+      await prefs.remove(key);
+    }
   }
 }
 
@@ -63,9 +255,6 @@ List<Deck> decks = [
       type: 'class',
       frontAsset: 'assets/images/wizard_class.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [
-        InteractiveArea(box: const Rect.fromLTWH(10, 10, 50, 50), toggled: false),
-      ],
     ),
     PlayingCard(
       name: 'wizard_arcane_kinship',
@@ -73,17 +262,13 @@ List<Deck> decks = [
       type: 'bond',
       frontAsset: 'assets/images/wizard_arcane_kinship.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [
-        InteractiveArea(box: const Rect.fromLTWH(10, 10, 50, 50), toggled: false),
-      ],
     ),
     PlayingCard(
       name: 'wizard_human',
-      description: 'Human Wizard',
+      description: 'Human',
       type: 'ancestry',
       frontAsset: 'assets/images/wizard_human.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_arcane_ward',
@@ -91,7 +276,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/wizard_arcane_ward.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_cast_spell',
@@ -99,7 +283,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/wizard_cast_spell.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_charm_person',
@@ -107,7 +290,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/wizard_charm_person.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_contact_spirits',
@@ -115,7 +297,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/wizard_contact_spirits.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_curiosity',
@@ -123,7 +304,6 @@ List<Deck> decks = [
       type: 'drive',
       frontAsset: 'assets/images/wizard_curiosity.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_detect_magic',
@@ -131,7 +311,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/wizard_detect_magic.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_dispel_magic',
@@ -139,7 +318,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/wizard_dispel_magic.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_eccentricity',
@@ -147,7 +325,6 @@ List<Deck> decks = [
       type: 'drive',
       frontAsset: 'assets/images/wizard_eccentricity.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_elf',
@@ -155,7 +332,6 @@ List<Deck> decks = [
       type: 'ancestry',
       frontAsset: 'assets/images/wizard_elf.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     // Continue adding more cards in a similar manner...
     PlayingCard(
@@ -164,7 +340,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/wizard_telepathy.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_fireball',
@@ -172,7 +347,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/wizard_fireball.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_formally_trained',
@@ -180,7 +354,6 @@ List<Deck> decks = [
       type: 'background',
       frontAsset: 'assets/images/wizard_formally_trained.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_invisibility',
@@ -188,7 +361,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/wizard_invisibility.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_light',
@@ -196,7 +368,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/wizard_light.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_magic_missile',
@@ -204,7 +375,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/wizard_magic_missile.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_mimic',
@@ -212,7 +382,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/wizard_mimic.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_pact',
@@ -220,7 +389,6 @@ List<Deck> decks = [
       type: 'bond',
       frontAsset: 'assets/images/wizard_pact.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_ritual',
@@ -228,7 +396,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/wizard_ritual.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_sleep',
@@ -236,7 +403,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/wizard_sleep.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_spear',
@@ -244,7 +410,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/wizard_spear.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_spellbook',
@@ -252,7 +417,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/wizard_spellbook.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_staff',
@@ -260,7 +424,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/wizard_staff.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_steeped_in_lore',
@@ -268,7 +431,6 @@ List<Deck> decks = [
       type: 'background',
       frontAsset: 'assets/images/wizard_steeped_in_lore.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'wizard_arcane_patronage',
@@ -276,7 +438,6 @@ List<Deck> decks = [
       type: 'background',
       frontAsset: 'assets/images/wizard_arcane_patronage.png',
       backAsset: 'assets/images/wizard_class_back.png',
-      interactiveAreas: [],
     ),
   ]),
   Deck(id: 'fighter', name: 'Fighter', cards: [
@@ -286,9 +447,6 @@ List<Deck> decks = [
       type: 'class',
       frontAsset: 'assets/images/fighter_class.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [
-        InteractiveArea(box: const Rect.fromLTWH(10, 10, 50, 50), toggled: false),
-      ],
     ),
     PlayingCard(
       name: 'fighter_noble_scion',
@@ -296,9 +454,6 @@ List<Deck> decks = [
       type: 'background',
       frontAsset: 'assets/images/fighter_noble_scion.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [
-        InteractiveArea(box: const Rect.fromLTWH(10, 10, 50, 50), toggled: false),
-      ],
     ),
     PlayingCard(
       name: 'fighter_bend_bars',
@@ -306,7 +461,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/fighter_bend_bars.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'fighter_defend',
@@ -314,7 +468,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/fighter_defend.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'fighter_gladiator',
@@ -322,7 +475,6 @@ List<Deck> decks = [
       type: 'background',
       frontAsset: 'assets/images/fighter_gladiator.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'fighter_pledged_guardian',
@@ -330,9 +482,6 @@ List<Deck> decks = [
       type: 'background',
       frontAsset: 'assets/images/fighter_pledged_guardian.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [
-        InteractiveArea(box: const Rect.fromLTWH(10, 10, 50, 50), toggled: false),
-      ],
     ),
     PlayingCard(
       name: 'fighter_veteran_of_foreign_wars',
@@ -340,9 +489,6 @@ List<Deck> decks = [
       type: 'background',
       frontAsset: 'assets/images/fighter_veteran_of_foreign_wars.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [
-        InteractiveArea(box: const Rect.fromLTWH(10, 10, 50, 50), toggled: false),
-      ],
     ),
     PlayingCard(
       name: 'fighter_brothers_oath',
@@ -350,9 +496,6 @@ List<Deck> decks = [
       type: 'bond',
       frontAsset: 'assets/images/fighter_brothers_oath.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [
-        InteractiveArea(box: const Rect.fromLTWH(10, 10, 50, 50), toggled: false),
-      ],
     ),
     PlayingCard(
       name: 'fighter_old_rivalry',
@@ -360,9 +503,6 @@ List<Deck> decks = [
       type: 'bond',
       frontAsset: 'assets/images/fighter_old_rivalry.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [
-        InteractiveArea(box: const Rect.fromLTWH(10, 10, 50, 50), toggled: false),
-      ],
     ),
     PlayingCard(
       name: 'fighter_human',
@@ -370,9 +510,6 @@ List<Deck> decks = [
       type: 'ancestry',
       frontAsset: 'assets/images/fighter_human.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [
-        InteractiveArea(box: const Rect.fromLTWH(10, 10, 50, 50), toggled: false),
-      ],
     ),
     PlayingCard(
       name: 'fighter_axe',
@@ -380,7 +517,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/fighter_axe.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'fighter_breastplate',
@@ -388,7 +524,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/fighter_breastplate.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [],
     ),
     // Repeat the pattern for other cards
     PlayingCard(
@@ -397,7 +532,6 @@ List<Deck> decks = [
       type: 'drive',
       frontAsset: 'assets/images/fighter_challenge.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'fighter_crossbow',
@@ -405,7 +539,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/fighter_crossbow.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [],
     ),
     // Skipping some for brevity
     PlayingCard(
@@ -414,7 +547,6 @@ List<Deck> decks = [
       type: 'ancestry',
       frontAsset: 'assets/images/fighter_dwarf.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [],
     ),
     // Continue with the provided list
     PlayingCard(
@@ -423,7 +555,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/fighter_flail.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'fighter_glory',
@@ -431,7 +562,6 @@ List<Deck> decks = [
       type: 'drive',
       frontAsset: 'assets/images/fighter_glory.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'fighter_hammer',
@@ -439,7 +569,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/fighter_hammer.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'fighter_token',
@@ -447,7 +576,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/fighter_token.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'fighter_hard_to_kill',
@@ -455,7 +583,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/fighter_hard_to_kill.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'fighter_intimidating',
@@ -463,7 +590,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/fighter_intimidating.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'fighter_mace',
@@ -471,7 +597,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/fighter_mace.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'fighter_pride',
@@ -479,7 +604,6 @@ List<Deck> decks = [
       type: 'drive',
       frontAsset: 'assets/images/fighter_pride.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'fighter_shield',
@@ -487,7 +611,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/fighter_shield.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'fighter_situational_awareness',
@@ -495,7 +618,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/fighter_situational_awareness.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'fighter_spear',
@@ -503,7 +625,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/fighter_spear.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'fighter_steely_eyed',
@@ -511,7 +632,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/fighter_steely_eyed.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [],
     ),
     PlayingCard(
       name: 'fighter_sword',
@@ -519,7 +639,6 @@ List<Deck> decks = [
       type: 'skill',
       frontAsset: 'assets/images/fighter_sword.png',
       backAsset: 'assets/images/fighter_class_back.png',
-      interactiveAreas: [],
     ),
   ])
 ];

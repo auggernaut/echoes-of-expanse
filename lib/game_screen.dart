@@ -1,5 +1,7 @@
+import 'package:echoes_of_expanse/character_sheet.dart';
+import 'package:echoes_of_expanse/deck_view.dart';
 import 'package:flutter/material.dart';
-import 'package:echoes_of_expanse/cards_carousel.dart';
+// import 'package:echoes_of_expanse/cards_carousel.dart';
 import 'package:echoes_of_expanse/data.dart';
 
 class GameScreen extends StatelessWidget {
@@ -10,28 +12,41 @@ class GameScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Echoes of Expanse"),
-        automaticallyImplyLeading: false,
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.help_outline),
-            onPressed: () => _showInstructions(context),
-          ),
-        ],
-      ),
-      body: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10.0),
-          child: CardsCarousel(
-            cards: hand.selectedCards,
-            onCarouselChange: (int index) {
-              // Handle carousel change if needed
-            },
-            cardTapBehavior: 'flip', // Or 'dim', depending on your game mechanics
-            onCardTap: _onCardTap,
-            // Ensure CardsCarousel is adapted to optionally receive and handle onCardTap if needed
-          )),
-    );
+        appBar: AppBar(
+          title: const Text("Echoes of Expanse"),
+          automaticallyImplyLeading: false,
+          actions: <Widget>[
+            IconButton(
+              icon: const Icon(Icons.help_outline),
+              onPressed: () => _showInstructions(context),
+            ),
+          ],
+        ),
+        body: Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: DeckView(hand: hand),
+            ),
+            Expanded(
+              flex: 1,
+              child: CharacterSheet(hand: hand),
+            ),
+          ],
+        ));
+
+    //   Container(
+    //       padding: const EdgeInsets.symmetric(vertical: 10.0),
+    //       child: CardsCarousel(
+    //         cards: hand.selectedCards,
+    //         onCarouselChange: (int index) {
+    //           // Handle carousel change if needed
+    //         },
+    //         cardTapBehavior: 'flip', // Or 'dim', depending on your game mechanics
+    //         onCardTap: _onCardTap,
+    //         // Ensure CardsCarousel is adapted to optionally receive and handle onCardTap if needed
+    //       )),
+    // );
   }
 
   void _onCardTap(PlayingCard card) {
