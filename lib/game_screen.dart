@@ -1,56 +1,148 @@
 import 'package:echoes_of_expanse/character_sheet.dart';
 import 'package:echoes_of_expanse/deck_view.dart';
+import 'package:echoes_of_expanse/intro_page.dart';
 import 'package:flutter/material.dart';
-// import 'package:echoes_of_expanse/cards_carousel.dart';
 import 'package:echoes_of_expanse/data.dart';
+import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class GameScreen extends StatelessWidget {
+  final _key = GlobalKey<ExpandableFabState>();
   final Hand hand;
 
-  const GameScreen({super.key, required this.hand});
+  GameScreen({super.key, required this.hand});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text("Echoes of Expanse"),
-          automaticallyImplyLeading: false,
-          actions: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.help_outline),
-              onPressed: () => _showInstructions(context),
-            ),
-          ],
+      appBar: AppBar(
+        title: const Text("Echoes of Expanse"),
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.clear),
+          onPressed: () => _clearCharacterData(context),
         ),
-        body: Row(
-          children: [
-            Expanded(
-              flex: 2,
-              child: DeckView(hand: hand),
-            ),
-            Expanded(
-              flex: 1,
-              child: CharacterSheet(hand: hand),
-            ),
-          ],
-        ));
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            onPressed: () => _showInstructions(context),
+          ),
+        ],
+      ),
+      body: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: DeckView(hand: hand),
+          ),
+          Expanded(
+            flex: 1,
+            child: CharacterSheet(hand: hand),
+          ),
+        ],
+      ),
+      // floatingActionButton: FloatingActionButton(
+      //     onPressed: () => _showDiceRoller(context),
+      //     child: Image.asset(
+      //       'assets/images/d6.png', // Ensure you have a dice image asset
+      //       height: 40,
+      //       width: 40,
+      //     )),
+      floatingActionButtonLocation: ExpandableFab.location,
+      floatingActionButton: ExpandableFab(
+        key: _key,
+        type: ExpandableFabType.up,
+        childrenAnimation: ExpandableFabAnimation.none,
+        distance: 70,
+        overlayStyle: ExpandableFabOverlayStyle(
+          color: Colors.white.withOpacity(0.9),
+        ),
+        children: [
+          Row(
+            children: [
+              Text('Roll'),
+              SizedBox(width: 20),
+              FloatingActionButton.small(
+                  heroTag: null,
+                  onPressed: () => _showDiceRoller(context),
+                  child: Icon(Icons.casino)),
+            ],
+          ),
+          const Row(
+            children: [
+              Text('Add/Spend Coin'),
+              SizedBox(width: 20),
+              FloatingActionButton.small(
+                heroTag: null,
+                onPressed: null,
+                child: Icon(Icons.circle),
+              ),
+            ],
+          ),
+          const Row(
+            children: [
+              Text('Take Damage/Heal'),
+              SizedBox(width: 20),
+              FloatingActionButton.small(
+                heroTag: null,
+                onPressed: null,
+                child: Icon(Icons.favorite),
+              ),
+            ],
+          ),
+          const Row(
+            children: [
+              Text('Find/Sell Treasure'),
+              SizedBox(width: 20),
+              FloatingActionButton.small(
+                heroTag: null,
+                onPressed: null,
+                child: Icon(Icons.diamond),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 
-    //   Container(
-    //       padding: const EdgeInsets.symmetric(vertical: 10.0),
-    //       child: CardsCarousel(
-    //         cards: hand.selectedCards,
-    //         onCarouselChange: (int index) {
-    //           // Handle carousel change if needed
-    //         },
-    //         cardTapBehavior: 'flip', // Or 'dim', depending on your game mechanics
-    //         onCardTap: _onCardTap,
-    //         // Ensure CardsCarousel is adapted to optionally receive and handle onCardTap if needed
-    //       )),
-    // );
+  void _clearCharacterData(BuildContext context) async {
+    await hand.clearHand();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Character data cleared')),
+    );
+    // Optionally, you can navigate back to the IntroPage or refresh the current page
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => IntroPage()),
+    );
   }
 
   void _onCardTap(PlayingCard card) {
     // Handle card tap if needed
+  }
+
+  void _showDiceRoller(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Container(
+            width: 350,
+            height: 190,
+            child: InAppWebView(
+              initialUrlRequest: URLRequest(
+                url: WebUri('https://alarm-clock.info/widgets/dices/diceroll.html'),
+              ),
+              initialOptions: InAppWebViewGroupOptions(
+                crossPlatform: InAppWebViewOptions(
+                  javaScriptEnabled: true,
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _showInstructions(BuildContext context) {

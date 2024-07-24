@@ -11,37 +11,42 @@ class PlayingCard {
   bool isFlipped;
 
   // New stats as strings
-  final String health;
-  final String attack;
-  final String cardClass; // renamed from class to avoid reserved keyword
+  final int health;
+  final int maxWeight;
+  final int weight;
+  final String cardClass;
   final String drive;
   final String ancestry;
   final String background;
-  final String mission;
-  final String power;
-  final String smarts;
-  final String charm;
-  final String grit;
+  final String bond;
+  final int power;
+  final int smarts;
+  final int charm;
+  final int grit;
+  final int armor;
+  final int coin;
 
-  PlayingCard({
-    required this.name,
-    required this.description,
-    required this.type,
-    required this.frontAsset,
-    required this.backAsset,
-    this.isFlipped = false,
-    this.health = '',
-    this.attack = '',
-    this.cardClass = '',
-    this.drive = '',
-    this.ancestry = '',
-    this.background = '',
-    this.mission = '',
-    this.power = '',
-    this.smarts = '',
-    this.charm = '',
-    this.grit = '',
-  });
+  PlayingCard(
+      {required this.name,
+      required this.description,
+      required this.type,
+      required this.frontAsset,
+      required this.backAsset,
+      this.isFlipped = false,
+      this.health = 0,
+      this.maxWeight = 0,
+      this.weight = 0,
+      this.cardClass = '',
+      this.drive = '',
+      this.ancestry = '',
+      this.background = '',
+      this.bond = '',
+      this.power = 0,
+      this.smarts = 0,
+      this.charm = 0,
+      this.grit = 0,
+      this.armor = 0,
+      this.coin = 0});
 
   Map<String, dynamic> toJson() => {
         'name': name,
@@ -51,44 +56,42 @@ class PlayingCard {
         'backAsset': backAsset,
         'isFlipped': isFlipped,
         'health': health,
-        'attack': attack,
+        'maxWeight': maxWeight,
+        'weight': weight,
         'cardClass': cardClass,
         'drive': drive,
         'ancestry': ancestry,
         'background': background,
-        'mission': mission,
+        'bond': bond,
         'power': power,
         'smarts': smarts,
         'charm': charm,
         'grit': grit,
+        'armor': armor,
+        'coin': coin
       };
 
   factory PlayingCard.fromJson(Map<String, dynamic> json) => PlayingCard(
-        name: json['name'],
-        description: json['description'],
-        type: json['type'],
-        frontAsset: json['frontAsset'],
-        backAsset: json['backAsset'],
-        isFlipped: json['isFlipped'],
-        health: json['health'],
-        attack: json['attack'],
-        cardClass: json['cardClass'],
-        drive: json['drive'],
-        ancestry: json['ancestry'],
-        background: json['background'],
-        mission: json['mission'],
-        power: json['power'],
-        smarts: json['smarts'],
-        charm: json['charm'],
-        grit: json['grit'],
-      );
-}
-
-class InteractiveArea {
-  Rect box;
-  bool toggled;
-
-  InteractiveArea({required this.box, this.toggled = false});
+      name: json['name'],
+      description: json['description'],
+      type: json['type'],
+      frontAsset: json['frontAsset'],
+      backAsset: json['backAsset'],
+      isFlipped: json['isFlipped'],
+      health: json['health'],
+      maxWeight: json['maxWeight'],
+      weight: json['weight'],
+      cardClass: json['cardClass'],
+      drive: json['drive'],
+      ancestry: json['ancestry'],
+      background: json['background'],
+      bond: json['bond'],
+      power: json['power'],
+      smarts: json['smarts'],
+      charm: json['charm'],
+      grit: json['grit'],
+      armor: json['armor'],
+      coin: json['coin']);
 }
 
 class Deck {
@@ -101,25 +104,28 @@ class Deck {
 
 class Hand {
   final List<PlayingCard> selectedCards = [];
-  Map<String, String> characterStats = {
-    'health': '',
-    'attack': '',
+  Map<String, dynamic> characterStats = {
+    'health': 0,
+    'maxWeight': 0,
+    'weight': 0,
     'class': '',
     'drive': '',
     'ancestry': '',
     'background': '',
-    'mission': '',
-    'power': '',
-    'smarts': '',
-    'charm': '',
-    'grit': '',
+    'bond': '',
+    'power': 0,
+    'smarts': 0,
+    'charm': 0,
+    'grit': 0,
+    'armor': 0,
+    'coin': 0
   };
 
   // Method to add a card to the hand
   void addCard(PlayingCard card) {
     if (!selectedCards.contains(card)) {
       selectedCards.add(card);
-      _updateCharacterStats();
+      _updateCharacterStats(card);
       _saveToLocalStorage();
     }
   }
@@ -127,62 +133,46 @@ class Hand {
   // Method to remove a card from the hand
   void removeCard(PlayingCard card) {
     selectedCards.remove(card);
-    _updateCharacterStats();
+    _updateCharacterStats(card);
     _saveToLocalStorage();
   }
 
   // Method to update character stats
-  void _updateCharacterStats() {
-    characterStats = {
-      'health': '',
-      'attack': '',
-      'class': '',
-      'drive': '',
-      'ancestry': '',
-      'background': '',
-      'mission': '',
-      'power': '',
-      'smarts': '',
-      'charm': '',
-      'grit': '',
-    };
-
-    for (var card in selectedCards) {
+  void _updateCharacterStats(PlayingCard card) {
+    if (card.type == 'class') {
+      characterStats['class'] = card.description;
+    }
+    if (card.type == 'drive') {
+      characterStats['drive'] = card.description;
+    }
+    if (card.type == 'ancestry') {
+      characterStats['ancestry'] = card.description;
+    }
+    if (card.type == 'background') {
       characterStats['health'] = card.health;
-      characterStats['attack'] = card.attack;
-
-      if (card.cardClass.isNotEmpty) {
-        characterStats['class'] = card.cardClass;
-      }
-      if (card.drive.isNotEmpty) {
-        characterStats['drive'] = card.drive;
-      }
-      if (card.type == 'ancestry') {
-        characterStats['ancestry'] = card.description;
-      }
-      if (card.background.isNotEmpty) {
-        characterStats['background'] = card.background;
-      }
-      if (card.mission.isNotEmpty) {
-        characterStats['mission'] = card.mission;
-      }
-      if (card.power.isNotEmpty) {
-        characterStats['power'] = card.power;
-      }
-      if (card.smarts.isNotEmpty) {
-        characterStats['smarts'] = card.smarts;
-      }
-      if (card.charm.isNotEmpty) {
-        characterStats['charm'] = card.charm;
-      }
-      if (card.grit.isNotEmpty) {
-        characterStats['grit'] = card.grit;
-      }
+      characterStats['maxWeight'] = card.maxWeight;
+      characterStats['background'] = card.description;
+      characterStats['power'] = card.power;
+      characterStats['smarts'] = card.smarts;
+      characterStats['charm'] = card.charm;
+      characterStats['grit'] = card.grit;
+    }
+    if (card.type == 'bond') {
+      characterStats['bond'] = card.description;
+    }
+    if (card.armor > 0) {
+      characterStats['armor'] += card.armor;
+    }
+    if (card.weight > 0) {
+      characterStats['weight'] += card.weight;
+    }
+    if (card.coin > 0) {
+      characterStats['coin'] += card.coin;
     }
   }
 
   // Method to load cards and stats from localStorage
-  Future<Map<String, String>> loadCards() async {
+  Future<Map<String, dynamic>> loadCards() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? cardsJson = prefs.getString('selectedCards');
     if (cardsJson != null) {
@@ -191,25 +181,34 @@ class Hand {
       selectedCards.addAll(cardsList.map((card) => PlayingCard.fromJson(card)).toList());
     }
     return characterStats = {
-      'health': prefs.getString('health') ?? '',
-      'attack': prefs.getString('attack') ?? '',
+      'characterName': prefs.getString('characterName') ?? '',
+      'health': prefs.getInt('health') ?? 0,
+      'maxWeight': prefs.getInt('maxWeight') ?? 0,
+      'weight': prefs.getInt('weight') ?? 0,
       'class': prefs.getString('class') ?? '',
       'drive': prefs.getString('drive') ?? '',
       'ancestry': prefs.getString('ancestry') ?? '',
       'background': prefs.getString('background') ?? '',
-      'mission': prefs.getString('mission') ?? '',
-      'power': prefs.getString('power') ?? '',
-      'smarts': prefs.getString('smarts') ?? '',
-      'charm': prefs.getString('charm') ?? '',
-      'grit': prefs.getString('grit') ?? '',
+      'bond': prefs.getString('bond') ?? '',
+      'bondName': prefs.getString('bondName') ?? '',
+      'power': prefs.getInt('power') ?? 0,
+      'smarts': prefs.getInt('smarts') ?? 0,
+      'charm': prefs.getInt('charm') ?? 0,
+      'grit': prefs.getInt('grit') ?? 0,
+      'armor': prefs.getInt('armor') ?? 0,
+      'coin': prefs.getInt('coin') ?? 0,
     };
   }
 
   // Method to update a specific character stat and save it to localStorage
-  void updateStat(String key, String value) {
+  void updateStat(String key, dynamic value) {
     characterStats[key] = value;
     SharedPreferences.getInstance().then((prefs) {
-      prefs.setString(key, value);
+      if (value is int) {
+        prefs.setInt(key, value);
+      } else if (value is String) {
+        prefs.setString(key, value);
+      }
     });
   }
 
@@ -219,26 +218,17 @@ class Hand {
     String cardsJson = jsonEncode(selectedCards.map((card) => card.toJson()).toList());
     await prefs.setString('selectedCards', cardsJson);
     characterStats.forEach((key, value) async {
-      await prefs.setString(key, value);
+      if (value is int) {
+        await prefs.setInt(key, value);
+      } else if (value is String) {
+        await prefs.setString(key, value);
+      }
     });
   }
 
   // Method to clear the hand, stats, and localStorage
   Future<void> clearHand() async {
     selectedCards.clear();
-    characterStats = {
-      'health': '',
-      'attack': '',
-      'class': '',
-      'drive': '',
-      'ancestry': '',
-      'background': '',
-      'mission': '',
-      'power': '',
-      'smarts': '',
-      'charm': '',
-      'grit': '',
-    };
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('selectedCards');
     for (var key in characterStats.keys) {
@@ -253,12 +243,12 @@ List<Deck> decks = [
       name: 'wizard_class',
       description: 'Wizard',
       type: 'class',
-      frontAsset: 'assets/images/wizard_class.png',
+      frontAsset: 'assets/images/wizard_class_back.png',
       backAsset: 'assets/images/wizard_class_back.png',
     ),
     PlayingCard(
       name: 'wizard_arcane_kinship',
-      description: 'Wizard Arcane Kinship',
+      description: 'Arcane Kinship',
       type: 'bond',
       frontAsset: 'assets/images/wizard_arcane_kinship.png',
       backAsset: 'assets/images/wizard_class_back.png',
@@ -443,53 +433,73 @@ List<Deck> decks = [
   Deck(id: 'fighter', name: 'Fighter', cards: [
     PlayingCard(
       name: 'fighter_class',
-      description: 'fighter',
+      description: 'Fighter',
       type: 'class',
-      frontAsset: 'assets/images/fighter_class.png',
+      frontAsset: 'assets/images/fighter_class_back.png',
       backAsset: 'assets/images/fighter_class_back.png',
     ),
     PlayingCard(
-      name: 'fighter_noble_scion',
-      description: 'Fighter Noble Scion',
-      type: 'background',
-      frontAsset: 'assets/images/fighter_noble_scion.png',
-      backAsset: 'assets/images/fighter_class_back.png',
-    ),
+        name: 'fighter_noble_scion',
+        description: 'Noble Scion',
+        type: 'background',
+        frontAsset: 'assets/images/fighter_noble_scion.png',
+        backAsset: 'assets/images/fighter_class_back.png',
+        health: 18,
+        maxWeight: 5,
+        power: 1,
+        smarts: 2,
+        charm: 0,
+        grit: -1),
     PlayingCard(
-      name: 'fighter_bend_bars',
-      description: 'Bend Bars',
-      type: 'skill',
-      frontAsset: 'assets/images/fighter_bend_bars.png',
-      backAsset: 'assets/images/fighter_class_back.png',
-    ),
+        name: 'fighter_bend_bars',
+        description: 'Bend Bars',
+        type: 'skill',
+        frontAsset: 'assets/images/fighter_bend_bars.png',
+        backAsset: 'assets/images/fighter_class_back.png',
+        coin: 2),
     PlayingCard(
-      name: 'fighter_defend',
-      description: 'Defend',
-      type: 'skill',
-      frontAsset: 'assets/images/fighter_defend.png',
-      backAsset: 'assets/images/fighter_class_back.png',
-    ),
+        name: 'fighter_defend',
+        description: 'Defend',
+        type: 'skill',
+        frontAsset: 'assets/images/fighter_defend.png',
+        backAsset: 'assets/images/fighter_class_back.png',
+        coin: 2),
     PlayingCard(
-      name: 'fighter_gladiator',
-      description: 'Gladiator',
-      type: 'background',
-      frontAsset: 'assets/images/fighter_gladiator.png',
-      backAsset: 'assets/images/fighter_class_back.png',
-    ),
+        name: 'fighter_gladiator',
+        description: 'Gladiator',
+        type: 'background',
+        frontAsset: 'assets/images/fighter_gladiator.png',
+        backAsset: 'assets/images/fighter_class_back.png',
+        health: 19,
+        maxWeight: 6,
+        power: 2,
+        smarts: 0,
+        charm: -1,
+        grit: 1),
     PlayingCard(
-      name: 'fighter_pledged_guardian',
-      description: 'Pledged Guardian',
-      type: 'background',
-      frontAsset: 'assets/images/fighter_pledged_guardian.png',
-      backAsset: 'assets/images/fighter_class_back.png',
-    ),
+        name: 'fighter_pledged_guardian',
+        description: 'Guardian',
+        type: 'background',
+        frontAsset: 'assets/images/fighter_pledged_guardian.png',
+        backAsset: 'assets/images/fighter_class_back.png',
+        health: 20,
+        maxWeight: 6,
+        power: 0,
+        smarts: -1,
+        charm: 1,
+        grit: 2),
     PlayingCard(
-      name: 'fighter_veteran_of_foreign_wars',
-      description: 'Veteran of Foreign Wars',
-      type: 'background',
-      frontAsset: 'assets/images/fighter_veteran_of_foreign_wars.png',
-      backAsset: 'assets/images/fighter_class_back.png',
-    ),
+        name: 'fighter_veteran_of_foreign_wars',
+        description: 'Veteran',
+        type: 'background',
+        frontAsset: 'assets/images/fighter_veteran_of_foreign_wars.png',
+        backAsset: 'assets/images/fighter_class_back.png',
+        health: 18,
+        maxWeight: 7,
+        power: 1,
+        smarts: 0,
+        charm: -1,
+        grit: 2),
     PlayingCard(
       name: 'fighter_brothers_oath',
       description: 'Brothers Oath',
@@ -512,92 +522,100 @@ List<Deck> decks = [
       backAsset: 'assets/images/fighter_class_back.png',
     ),
     PlayingCard(
-      name: 'fighter_axe',
-      description: 'Axe',
-      type: 'skill',
-      frontAsset: 'assets/images/fighter_axe.png',
-      backAsset: 'assets/images/fighter_class_back.png',
-    ),
+        name: 'fighter_axe',
+        description: 'Axe',
+        type: 'skill',
+        frontAsset: 'assets/images/fighter_axe.png',
+        backAsset: 'assets/images/fighter_class_back.png',
+        coin: 2,
+        weight: 1),
     PlayingCard(
-      name: 'fighter_breastplate',
-      description: 'Breastplate',
-      type: 'skill',
-      frontAsset: 'assets/images/fighter_breastplate.png',
-      backAsset: 'assets/images/fighter_class_back.png',
-    ),
+        name: 'fighter_breastplate',
+        description: 'Breastplate',
+        type: 'skill',
+        frontAsset: 'assets/images/fighter_breastplate.png',
+        backAsset: 'assets/images/fighter_class_back.png',
+        armor: 2,
+        coin: 2,
+        weight: 2),
     // Repeat the pattern for other cards
     PlayingCard(
-      name: 'fighter_challenge',
-      description: 'Challenge',
+      name: 'fighter_dauntless',
+      description: 'Dauntless',
       type: 'drive',
-      frontAsset: 'assets/images/fighter_challenge.png',
+      frontAsset: 'assets/images/fighter_dauntless.png',
       backAsset: 'assets/images/fighter_class_back.png',
     ),
     PlayingCard(
-      name: 'fighter_crossbow',
-      description: 'Crossbow',
-      type: 'skill',
-      frontAsset: 'assets/images/fighter_crossbow.png',
-      backAsset: 'assets/images/fighter_class_back.png',
-    ),
+        name: 'fighter_crossbow',
+        description: 'Crossbow',
+        type: 'skill',
+        frontAsset: 'assets/images/fighter_crossbow.png',
+        backAsset: 'assets/images/fighter_class_back.png',
+        coin: 2,
+        weight: 1),
     // Skipping some for brevity
     PlayingCard(
-      name: 'fighter_dwarf',
-      description: 'Dwarf',
+      name: 'fighter_dwarven',
+      description: 'Dwarven',
       type: 'ancestry',
-      frontAsset: 'assets/images/fighter_dwarf.png',
+      frontAsset: 'assets/images/fighter_dwarven.png',
       backAsset: 'assets/images/fighter_class_back.png',
     ),
     // Continue with the provided list
     PlayingCard(
-      name: 'fighter_flail',
-      description: 'Flail',
-      type: 'skill',
-      frontAsset: 'assets/images/fighter_flail.png',
-      backAsset: 'assets/images/fighter_class_back.png',
-    ),
+        name: 'fighter_flail',
+        description: 'Flail',
+        type: 'skill',
+        frontAsset: 'assets/images/fighter_flail.png',
+        backAsset: 'assets/images/fighter_class_back.png',
+        coin: 2,
+        weight: 2),
     PlayingCard(
       name: 'fighter_glory',
-      description: 'Glory',
+      description: 'Glory-Bound',
       type: 'drive',
       frontAsset: 'assets/images/fighter_glory.png',
       backAsset: 'assets/images/fighter_class_back.png',
     ),
     PlayingCard(
-      name: 'fighter_hammer',
-      description: 'Hammer',
-      type: 'skill',
-      frontAsset: 'assets/images/fighter_hammer.png',
-      backAsset: 'assets/images/fighter_class_back.png',
-    ),
+        name: 'fighter_hammer',
+        description: 'Hammer',
+        type: 'skill',
+        frontAsset: 'assets/images/fighter_hammer.png',
+        backAsset: 'assets/images/fighter_class_back.png',
+        coin: 2,
+        weight: 2),
     PlayingCard(
-      name: 'fighter_token',
-      description: 'Token',
-      type: 'skill',
-      frontAsset: 'assets/images/fighter_token.png',
-      backAsset: 'assets/images/fighter_class_back.png',
-    ),
+        name: 'fighter_token',
+        description: 'Token',
+        type: 'skill',
+        frontAsset: 'assets/images/fighter_token.png',
+        backAsset: 'assets/images/fighter_class_back.png',
+        coin: 2,
+        weight: 1),
     PlayingCard(
-      name: 'fighter_hard_to_kill',
-      description: 'Hard to Kill',
-      type: 'skill',
-      frontAsset: 'assets/images/fighter_hard_to_kill.png',
-      backAsset: 'assets/images/fighter_class_back.png',
-    ),
+        name: 'fighter_hard_to_kill',
+        description: 'Hard to Kill',
+        type: 'skill',
+        frontAsset: 'assets/images/fighter_hard_to_kill.png',
+        backAsset: 'assets/images/fighter_class_back.png',
+        coin: 2),
     PlayingCard(
-      name: 'fighter_intimidating',
-      description: 'Intimidating',
-      type: 'skill',
-      frontAsset: 'assets/images/fighter_intimidating.png',
-      backAsset: 'assets/images/fighter_class_back.png',
-    ),
+        name: 'fighter_intimidating',
+        description: 'Intimidating',
+        type: 'skill',
+        frontAsset: 'assets/images/fighter_intimidating.png',
+        backAsset: 'assets/images/fighter_class_back.png',
+        coin: 2),
     PlayingCard(
-      name: 'fighter_mace',
-      description: 'Mace',
-      type: 'skill',
-      frontAsset: 'assets/images/fighter_mace.png',
-      backAsset: 'assets/images/fighter_class_back.png',
-    ),
+        name: 'fighter_mace',
+        description: 'Mace',
+        type: 'skill',
+        frontAsset: 'assets/images/fighter_mace.png',
+        backAsset: 'assets/images/fighter_class_back.png',
+        coin: 2,
+        weight: 2),
     PlayingCard(
       name: 'fighter_pride',
       description: 'Pride',
@@ -606,39 +624,42 @@ List<Deck> decks = [
       backAsset: 'assets/images/fighter_class_back.png',
     ),
     PlayingCard(
-      name: 'fighter_shield',
-      description: 'Shield',
-      type: 'skill',
-      frontAsset: 'assets/images/fighter_shield.png',
-      backAsset: 'assets/images/fighter_class_back.png',
-    ),
+        name: 'fighter_shield',
+        description: 'Shield',
+        type: 'skill',
+        frontAsset: 'assets/images/fighter_shield.png',
+        backAsset: 'assets/images/fighter_class_back.png',
+        coin: 2,
+        weight: 2),
     PlayingCard(
-      name: 'fighter_situational_awareness',
-      description: 'Situational Awareness',
-      type: 'skill',
-      frontAsset: 'assets/images/fighter_situational_awareness.png',
-      backAsset: 'assets/images/fighter_class_back.png',
-    ),
+        name: 'fighter_situational_awareness',
+        description: 'Situational Awareness',
+        type: 'skill',
+        frontAsset: 'assets/images/fighter_situational_awareness.png',
+        backAsset: 'assets/images/fighter_class_back.png',
+        coin: 2),
     PlayingCard(
-      name: 'fighter_spear',
-      description: 'Spear',
-      type: 'skill',
-      frontAsset: 'assets/images/fighter_spear.png',
-      backAsset: 'assets/images/fighter_class_back.png',
-    ),
+        name: 'fighter_spear',
+        description: 'Spear',
+        type: 'skill',
+        frontAsset: 'assets/images/fighter_spear.png',
+        backAsset: 'assets/images/fighter_class_back.png',
+        coin: 2,
+        weight: 2),
     PlayingCard(
-      name: 'fighter_steely_eyed',
-      description: 'Steely Eyed',
-      type: 'skill',
-      frontAsset: 'assets/images/fighter_steely_eyed.png',
-      backAsset: 'assets/images/fighter_class_back.png',
-    ),
+        name: 'fighter_steely_eyed',
+        description: 'Steely Eyed',
+        type: 'skill',
+        frontAsset: 'assets/images/fighter_steely_eyed.png',
+        backAsset: 'assets/images/fighter_class_back.png',
+        coin: 2),
     PlayingCard(
-      name: 'fighter_sword',
-      description: 'Sword',
-      type: 'skill',
-      frontAsset: 'assets/images/fighter_sword.png',
-      backAsset: 'assets/images/fighter_class_back.png',
-    ),
+        name: 'fighter_sword',
+        description: 'Sword',
+        type: 'skill',
+        frontAsset: 'assets/images/fighter_sword.png',
+        backAsset: 'assets/images/fighter_class_back.png',
+        coin: 2,
+        weight: 2),
   ])
 ];
