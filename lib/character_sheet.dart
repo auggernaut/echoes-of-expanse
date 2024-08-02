@@ -1,4 +1,5 @@
 import 'package:echoes_of_expanse/data.dart';
+import 'package:echoes_of_expanse/treasure_list.dart';
 import 'package:flutter/material.dart';
 
 class CharacterSheet extends StatefulWidget {
@@ -12,6 +13,7 @@ class CharacterSheet extends StatefulWidget {
 
 class _CharacterSheetState extends State<CharacterSheet> {
   Map<String, dynamic> characterStats = {};
+  int totalWeight = 0;
 
   @override
   void initState() {
@@ -21,12 +23,13 @@ class _CharacterSheetState extends State<CharacterSheet> {
         characterStats = stats;
       });
     });
+    _updateTotalWeight();
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16),
+      padding: EdgeInsets.symmetric(horizontal: 16.0),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,7 +41,8 @@ class _CharacterSheetState extends State<CharacterSheet> {
                     child: _buildTextField(
                         label: 'Name',
                         key: 'characterName',
-                        value: characterStats['characterName'] ?? '')),
+                        value: characterStats['characterName'] ?? '',
+                        hintText: 'Your Name')),
                 SizedBox(
                   width: 50,
                   child: Center(child: Text('the')),
@@ -80,7 +84,10 @@ class _CharacterSheetState extends State<CharacterSheet> {
                 ),
                 Expanded(
                     child: _buildTextField(
-                        label: 'Name', key: 'bondName', value: characterStats['bondName'] ?? '')),
+                        label: 'Name',
+                        key: 'bondName',
+                        value: characterStats['bondName'] ?? '',
+                        hintText: 'Character Name')),
               ],
             ),
             const SizedBox(height: 20),
@@ -89,11 +96,11 @@ class _CharacterSheetState extends State<CharacterSheet> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildIconLabel(Icons.favorite, 'Health', characterStats['health'].toString()),
-                _buildIconLabel(Icons.circle, 'Coin', characterStats['coin'].toString()),
-                _buildIconLabelFraction(Icons.fitness_center, 'Weight',
-                    characterStats['weight'].toString(), characterStats['maxWeight'].toString()),
-                _buildIconLabel(Icons.shield, 'Armor', characterStats['armor'].toString()),
+                _buildIconLabel(Icons.favorite, 'Health', characterStats['health'] ?? 0),
+                _buildIconLabel(Icons.circle, 'Coin', characterStats['coin'] ?? 0),
+                _buildIconLabelFraction(
+                    Icons.fitness_center, 'Weight', totalWeight, characterStats['maxWeight'] ?? 0),
+                _buildIconLabel(Icons.shield, 'Armor', characterStats['armor'] ?? 0),
               ],
             ),
 
@@ -117,13 +124,27 @@ class _CharacterSheetState extends State<CharacterSheet> {
                 characterStats['charm'].toString()),
             _buildStatSection('Grit', 'Endure or hold steady.\nDefend or protect others.', 'Sick',
                 characterStats['grit'].toString()),
+            TreasureList(hand: widget.hand, onUpdate: _updateTotalWeight),
+            SizedBox(height: 50.0)
           ],
         ),
       ),
     );
   }
 
-  Widget _buildTextField({required String label, required String key, required String value}) {
+  void _updateTotalWeight() {
+    int characterWeight = widget.hand.characterStats['weight'];
+    int treasureWeight = widget.hand.treasureItems.fold(0, (sum, item) => sum + item.weight);
+    setState(() {
+      totalWeight = characterWeight + treasureWeight;
+    });
+  }
+
+  Widget _buildTextField(
+      {required String label,
+      required String key,
+      required String value,
+      required String hintText}) {
     final TextEditingController controller = TextEditingController(text: value);
 
     controller.addListener(() {
@@ -133,15 +154,22 @@ class _CharacterSheetState extends State<CharacterSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const SizedBox(height: 8), // Space between label and line
         TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
+          decoration: InputDecoration(
+            // border: OutlineInputBorder(),
+            // hintText: hintText,
             isDense: true,
-            contentPadding: EdgeInsets.all(8),
+            contentPadding: EdgeInsets.symmetric(vertical: 8),
           ),
         ),
+        Container(
+          height: 1,
+          color: Colors.black,
+        ),
         Text(label, style: const TextStyle(fontWeight: FontWeight.w100, fontSize: 12)),
+        const SizedBox(height: 8), // Space below the line
       ],
     );
   }
@@ -176,9 +204,12 @@ class _CharacterSheetState extends State<CharacterSheet> {
               border: Border.all(color: Colors.black, width: 2),
             ),
             child: Center(
-              child: Text(
-                value,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              child: Transform.translate(
+                offset: Offset(0, -5), // Move the text up by 3 pixels
+                child: Text(
+                  value,
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           ),
@@ -189,12 +220,19 @@ class _CharacterSheetState extends State<CharacterSheet> {
               children: [
                 Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                 Text(description),
-                Row(
-                  children: [
-                    Checkbox(value: false, onChanged: (value) {}),
-                    Text(condition),
-                  ],
-                ),
+                // Row(
+                //   children: [
+                //     Checkbox(
+                //       value: false,
+                //       onChanged: (bool? newValue) {
+                //         setState(() {
+                //           widget.hand.updateStat('condition', newValue);
+                //         });
+                //       },
+                //     ),
+                //     Text(condition),
+                //   ],
+                // ),
               ],
             ),
           ),
@@ -203,7 +241,23 @@ class _CharacterSheetState extends State<CharacterSheet> {
     );
   }
 
-  Widget _buildIconLabel(IconData icon, String label, String? value) {
+  void _incrementStat(String label) {
+    String lowercaseLabel = label.toLowerCase();
+    setState(() {
+      characterStats[lowercaseLabel] = (characterStats[lowercaseLabel] ?? 0) + 1;
+      widget.hand.updateStat(lowercaseLabel, characterStats[lowercaseLabel]!);
+    });
+  }
+
+  void _decrementStat(String label) {
+    String lowercaseLabel = label.toLowerCase();
+    setState(() {
+      characterStats[lowercaseLabel] = (characterStats[lowercaseLabel] ?? 0) - 1;
+      widget.hand.updateStat(lowercaseLabel, characterStats[lowercaseLabel]!);
+    });
+  }
+
+  Widget _buildIconLabel(IconData icon, String label, int value) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -213,19 +267,61 @@ class _CharacterSheetState extends State<CharacterSheet> {
             Icon(icon, size: 45, color: Colors.black.withOpacity(0.1)), // Faded icon
             Positioned(
               top: -15, // Adjust this value to move the text up or down
-              child:
-                  Text(value ?? '0', style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold)),
+              child: Text(value.toString(),
+                  style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold)),
             ),
           ],
         ),
         SizedBox(height: 8), // Add some space between the icon-value stack and the label
         Text(label, style: TextStyle(fontSize: 16)),
+        SizedBox(height: 8), // Add some space between the label and the buttons
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: () => _decrementStat(label),
+              child: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                alignment: Alignment.center,
+                child: Transform.translate(
+                  offset: Offset(0, -5), // Move the text up by 3 pixels
+                  child: Text('-',
+                      style: TextStyle(
+                          color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ),
+            SizedBox(width: 8), // Add some space between the buttons
+            GestureDetector(
+              onTap: () => _incrementStat(label),
+              child: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                alignment: Alignment.center,
+                child: Transform.translate(
+                  offset: Offset(0, -5), // Move the text up by 3 pixels
+                  child: Text('+',
+                      style: TextStyle(
+                          color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
 
-  Widget _buildIconLabelFraction(
-      IconData icon, String label, String? numerator, String? denominator) {
+  Widget _buildIconLabelFraction(IconData icon, String label, int numerator, int denominator) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -242,8 +338,8 @@ class _CharacterSheetState extends State<CharacterSheet> {
               children: [
                 Positioned(
                     top: -12,
-                    left: 2,
-                    child: Text(numerator ?? '0',
+                    left: 3,
+                    child: Text(numerator.toString(),
                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
                 Container(
                   width: 30,
@@ -253,9 +349,9 @@ class _CharacterSheetState extends State<CharacterSheet> {
                   ),
                 ),
                 Positioned(
-                    top: 5,
-                    left: 20,
-                    child: Text(denominator ?? '0',
+                    top: 3,
+                    left: 17,
+                    child: Text(denominator.toString(),
                         style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
               ],
             ),
@@ -263,6 +359,14 @@ class _CharacterSheetState extends State<CharacterSheet> {
         ),
         SizedBox(height: 8), // Add some space between the icon-value stack and the label
         Text(label, style: TextStyle(fontSize: 16)),
+        numerator > denominator
+            ? Container(
+                height: 32,
+                child: Text(
+                  "Encumbered",
+                  style: TextStyle(color: Colors.red),
+                ))
+            : SizedBox(height: 32)
       ],
     );
   }

@@ -4,11 +4,9 @@ import 'cards_carousel.dart'; // Your CardsCarousel widget
 
 class DeckSelectionScreen extends StatefulWidget {
   final Function onDeckSelected;
+  final String title;
 
-  const DeckSelectionScreen({
-    super.key,
-    required this.onDeckSelected,
-  });
+  const DeckSelectionScreen({super.key, required this.onDeckSelected, required this.title});
 
   @override
   _DeckSelectionScreenState createState() => _DeckSelectionScreenState();
@@ -24,24 +22,28 @@ class _DeckSelectionScreenState extends State<DeckSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Expanded(
-          child: CardsCarousel(
-            onCarouselChange: _onCarouselChange,
-            onCardTap: (card) {
-              var selectedDeck = decks[currentIndex];
-              widget.onDeckSelected(selectedDeck);
-            },
-            cardTapBehavior: 'dim',
-            cards: decks
-                .map((deck) => deck.cards.first)
-                .toList(), // Assuming the first card represents the deck
-          ),
-        ),
-      ],
-    );
+    return Scaffold(
+        appBar: AppBar(title: Text(widget.title), automaticallyImplyLeading: false),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(height: 20.0),
+            Expanded(
+              child: CardsCarousel(
+                onCarouselChange: _onCarouselChange,
+                onCardTap: (card) {
+                  var selectedDeck = decks[currentIndex];
+                  widget.onDeckSelected(selectedDeck);
+                },
+                cardTapBehavior: 'dim',
+                cards: decks
+                    .map((deck) => deck.cards.first)
+                    .toList(), // Assuming the first card represents the deck
+              ),
+            ),
+            SizedBox(height: 20.0),
+          ],
+        ));
   }
 
   void _onCarouselChange(int index) {

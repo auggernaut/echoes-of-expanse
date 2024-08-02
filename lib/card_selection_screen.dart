@@ -6,9 +6,14 @@ class CardSelectionScreen extends StatefulWidget {
   final List<PlayingCard> cards;
   final int maxCards;
   final Function(List<PlayingCard>) onSubmit;
+  final String title;
 
   const CardSelectionScreen(
-      {super.key, required this.cards, required this.maxCards, required this.onSubmit});
+      {super.key,
+      required this.title,
+      required this.cards,
+      required this.maxCards,
+      required this.onSubmit});
 
   @override
   _CardSelectionScreenState createState() => _CardSelectionScreenState();
@@ -34,17 +39,19 @@ class _CardSelectionScreenState extends State<CardSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: CardsCarousel(
-            onCarouselChange: (index) => {},
-            cards: widget.cards,
-            cardTapBehavior: 'dim',
-            onCardTap: _toggleCardSelection,
-          ),
-        ),
-      ],
-    );
+    return Scaffold(
+        appBar: AppBar(title: Text(widget.title), automaticallyImplyLeading: false),
+        body: Column(
+          children: [
+            Expanded(
+              child: CardsCarousel(
+                onCarouselChange: (index) => {},
+                cards: widget.cards,
+                cardTapBehavior: 'dim',
+                onCardTap: _toggleCardSelection,
+              ),
+            ),
+          ],
+        ));
   }
 }

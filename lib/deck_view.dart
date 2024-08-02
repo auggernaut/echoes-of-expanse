@@ -24,26 +24,34 @@ class _DeckViewState extends State<DeckView> {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        childAspectRatio: 0.7,
-      ),
-      itemCount: widget.hand.selectedCards.length,
-      itemBuilder: (context, index) {
-        final card = widget.hand.selectedCards[index];
-        return GestureDetector(
-          onTap: () => showLightbox(index),
-          child: Column(
-            children: [
-              Padding(
-                  padding: EdgeInsets.only(top: 5.0, right: 5.0, left: 5.0),
-                  child: Image.asset(card.frontAsset, fit: BoxFit.cover)),
-              // Text(card.name),
-            ],
-          ),
-        );
-      },
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      final screenWidth = constraints.maxWidth;
+      const cardWidth = 300.0; // Adjust to fit 2 columns with padding
+      final crossAxisCount = (screenWidth / cardWidth).floor();
+
+      return GridView.builder(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: crossAxisCount,
+          mainAxisSpacing: 4.0,
+          crossAxisSpacing: 4.0,
+          childAspectRatio: 748 / 1044, // Aspect ratio of the card images
+        ),
+        itemCount: widget.hand.selectedCards.length,
+        itemBuilder: (context, index) {
+          final card = widget.hand.selectedCards[index];
+          return GestureDetector(
+            onTap: () => showLightbox(index),
+            child: Column(
+              children: [
+                Padding(
+                    padding: EdgeInsets.only(top: 5.0, right: 5.0, left: 5.0),
+                    child: Image.asset(card.frontAsset, fit: BoxFit.cover)),
+                // Text(card.name),
+              ],
+            ),
+          );
+        },
+      );
+    });
   }
 }

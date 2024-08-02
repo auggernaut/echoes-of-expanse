@@ -1,4 +1,5 @@
 import 'package:echoes_of_expanse/card_selection_screen.dart';
+import 'package:echoes_of_expanse/cards_masonry.dart';
 import 'package:echoes_of_expanse/data.dart'; // Ensure this contains your Deck, PlayingCard models
 import 'package:echoes_of_expanse/deck_selection_screen.dart';
 import 'package:echoes_of_expanse/game_screen.dart';
@@ -25,44 +26,47 @@ class _CharacterCreationManagerState extends State<CharacterCreationManager> {
   @override
   Widget build(BuildContext context) {
     List<Widget> steps = [
-      DeckSelectionScreen(onDeckSelected: _selectDeck),
+      DeckSelectionScreen(onDeckSelected: _selectDeck, title: instructions),
       CardSelectionScreen(
         key: UniqueKey(),
+        title: instructions,
         cards: selectedDeck.cards.where((card) => card.type == 'background').toList(),
         maxCards: 1,
         onSubmit: _selectBackground,
       ),
       CardSelectionScreen(
         key: UniqueKey(),
+        title: instructions,
         cards: selectedDeck.cards.where((card) => card.type == 'ancestry').toList(),
         maxCards: 1,
         onSubmit: _selectAncestry,
       ),
       CardSelectionScreen(
         key: UniqueKey(),
+        title: instructions,
         cards: selectedDeck.cards.where((card) => card.type == 'bond').toList(),
         maxCards: 1,
         onSubmit: _selectBond,
       ),
       CardSelectionScreen(
         key: UniqueKey(),
+        title: instructions,
         cards: selectedDeck.cards.where((card) => card.type == 'drive').toList(),
         maxCards: 1,
         onSubmit: _selectDrive,
       ),
-      CardSelectionScreen(
-        key: UniqueKey(),
-        cards: selectedDeck.cards.where((card) => card.type == 'skill').toList(),
-        maxCards: 4,
-        onSubmit: _selectSkills,
-      ),
+      MasonryGridScreen(cards: selectedDeck.cards, onSubmit: _selectSkills),
+      // CardSelectionScreen(
+      //   key: UniqueKey(),
+      //   cards: selectedDeck.cards.where((card) => card.type == 'skill').toList(),
+      //   maxCards: 4,
+      //   onSubmit: _selectSkills,
+      // ),
       // You'll create similar selection screens for background, ancestry, and bond
     ];
 
-    return Scaffold(
-      appBar: AppBar(title: Text(instructions), automaticallyImplyLeading: false),
-      body: Container(padding: const EdgeInsets.symmetric(vertical: 20.0), child: steps[_currentStep]),
-    );
+    return Container(
+        padding: const EdgeInsets.symmetric(vertical: 0.0), child: steps[_currentStep]);
   }
 
   void _selectDeck(Deck deck) {

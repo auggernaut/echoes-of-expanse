@@ -17,7 +17,7 @@ class IntroPage extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                "Welcome, adventurer, ready your weapons and prepare to embark on a fantastic journey!\n\n Everything you need to play is in this app with the exception of dice, a piece of blank paper, and a pen.",
+                "Welcome, adventurer, ready your weapons and prepare to embark on a fantastic journey!\n\n Everything you need to play is in this app!",
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodyLarge,
               ),

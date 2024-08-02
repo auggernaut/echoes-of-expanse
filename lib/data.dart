@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PlayingCard {
@@ -94,6 +93,35 @@ class PlayingCard {
       coin: json['coin']);
 }
 
+class TreasureItem {
+  final String id;
+  final String name;
+  final int cost;
+  final int weight;
+
+  TreasureItem({required this.id, required this.name, required this.cost, required this.weight});
+
+  // Method to convert a TreasureItem to JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'cost': cost,
+      'weight': weight,
+    };
+  }
+
+  // Method to create a TreasureItem from JSON
+  static TreasureItem fromJson(Map<String, dynamic> json) {
+    return TreasureItem(
+      id: json['id'],
+      name: json['name'],
+      cost: json['cost'],
+      weight: json['weight'],
+    );
+  }
+}
+
 class Deck {
   final String id;
   final String name;
@@ -104,6 +132,7 @@ class Deck {
 
 class Hand {
   final List<PlayingCard> selectedCards = [];
+  final List<TreasureItem> treasureItems = [];
   Map<String, dynamic> characterStats = {
     'health': 0,
     'maxWeight': 0,
@@ -137,6 +166,27 @@ class Hand {
     _saveToLocalStorage();
   }
 
+  // Method to add a treasure item to the hand
+  void addTreasureItem(TreasureItem item) {
+    treasureItems.add(item);
+    _saveToLocalStorage();
+  }
+
+  // Method to remove a treasure item from the hand
+  void removeTreasureItem(String id) {
+    treasureItems.removeWhere((item) => item.id == id);
+    _saveToLocalStorage();
+  }
+
+  // Method to update a treasure item in the hand
+  void updateTreasureItem(TreasureItem updatedItem) {
+    int index = treasureItems.indexWhere((item) => item.id == updatedItem.id);
+    if (index != -1) {
+      treasureItems[index] = updatedItem;
+      _saveToLocalStorage();
+    }
+  }
+
   // Method to update character stats
   void _updateCharacterStats(PlayingCard card) {
     if (card.type == 'class') {
@@ -166,9 +216,6 @@ class Hand {
     if (card.weight > 0) {
       characterStats['weight'] += card.weight;
     }
-    if (card.coin > 0) {
-      characterStats['coin'] += card.coin;
-    }
   }
 
   // Method to load cards and stats from localStorage
@@ -180,6 +227,14 @@ class Hand {
       selectedCards.clear();
       selectedCards.addAll(cardsList.map((card) => PlayingCard.fromJson(card)).toList());
     }
+
+    String? treasureItemsJson = prefs.getString('treasureItems');
+    if (treasureItemsJson != null) {
+      List<dynamic> treasureItemsList = jsonDecode(treasureItemsJson);
+      treasureItems.clear();
+      treasureItems.addAll(treasureItemsList.map((item) => TreasureItem.fromJson(item)).toList());
+    }
+
     return characterStats = {
       'characterName': prefs.getString('characterName') ?? '',
       'health': prefs.getInt('health') ?? 0,
@@ -212,11 +267,15 @@ class Hand {
     });
   }
 
-  // Method to save cards and stats to localStorage
+  // Method to save cards, treasure items, and stats to localStorage
   Future<void> _saveToLocalStorage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String cardsJson = jsonEncode(selectedCards.map((card) => card.toJson()).toList());
     await prefs.setString('selectedCards', cardsJson);
+
+    String treasureItemsJson = jsonEncode(treasureItems.map((item) => item.toJson()).toList());
+    await prefs.setString('treasureItems', treasureItemsJson);
+
     characterStats.forEach((key, value) async {
       if (value is int) {
         await prefs.setInt(key, value);
@@ -229,8 +288,10 @@ class Hand {
   // Method to clear the hand, stats, and localStorage
   Future<void> clearHand() async {
     selectedCards.clear();
+    treasureItems.clear();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('selectedCards');
+    await prefs.remove('treasureItems');
     for (var key in characterStats.keys) {
       await prefs.remove(key);
     }
@@ -460,7 +521,7 @@ List<Deck> decks = [
     PlayingCard(
         name: 'fighter_defend',
         description: 'Defend',
-        type: 'skill',
+        type: 'recommended',
         frontAsset: 'assets/images/fighter_defend.png',
         backAsset: 'assets/images/fighter_class_back.png',
         coin: 2),
@@ -524,7 +585,7 @@ List<Deck> decks = [
     PlayingCard(
         name: 'fighter_axe',
         description: 'Axe',
-        type: 'skill',
+        type: 'equipment',
         frontAsset: 'assets/images/fighter_axe.png',
         backAsset: 'assets/images/fighter_class_back.png',
         coin: 2,
@@ -532,7 +593,7 @@ List<Deck> decks = [
     PlayingCard(
         name: 'fighter_breastplate',
         description: 'Breastplate',
-        type: 'skill',
+        type: 'equipment',
         frontAsset: 'assets/images/fighter_breastplate.png',
         backAsset: 'assets/images/fighter_class_back.png',
         armor: 2,
@@ -549,7 +610,7 @@ List<Deck> decks = [
     PlayingCard(
         name: 'fighter_crossbow',
         description: 'Crossbow',
-        type: 'skill',
+        type: 'equipment',
         frontAsset: 'assets/images/fighter_crossbow.png',
         backAsset: 'assets/images/fighter_class_back.png',
         coin: 2,
@@ -566,7 +627,7 @@ List<Deck> decks = [
     PlayingCard(
         name: 'fighter_flail',
         description: 'Flail',
-        type: 'skill',
+        type: 'equipment',
         frontAsset: 'assets/images/fighter_flail.png',
         backAsset: 'assets/images/fighter_class_back.png',
         coin: 2,
@@ -581,7 +642,7 @@ List<Deck> decks = [
     PlayingCard(
         name: 'fighter_hammer',
         description: 'Hammer',
-        type: 'skill',
+        type: 'equipment',
         frontAsset: 'assets/images/fighter_hammer.png',
         backAsset: 'assets/images/fighter_class_back.png',
         coin: 2,
@@ -589,7 +650,7 @@ List<Deck> decks = [
     PlayingCard(
         name: 'fighter_token',
         description: 'Token',
-        type: 'skill',
+        type: 'recommended',
         frontAsset: 'assets/images/fighter_token.png',
         backAsset: 'assets/images/fighter_class_back.png',
         coin: 2,
@@ -611,7 +672,7 @@ List<Deck> decks = [
     PlayingCard(
         name: 'fighter_mace',
         description: 'Mace',
-        type: 'skill',
+        type: 'equipment',
         frontAsset: 'assets/images/fighter_mace.png',
         backAsset: 'assets/images/fighter_class_back.png',
         coin: 2,
@@ -626,7 +687,7 @@ List<Deck> decks = [
     PlayingCard(
         name: 'fighter_shield',
         description: 'Shield',
-        type: 'skill',
+        type: 'equipment',
         frontAsset: 'assets/images/fighter_shield.png',
         backAsset: 'assets/images/fighter_class_back.png',
         coin: 2,
@@ -641,7 +702,7 @@ List<Deck> decks = [
     PlayingCard(
         name: 'fighter_spear',
         description: 'Spear',
-        type: 'skill',
+        type: 'equipment',
         frontAsset: 'assets/images/fighter_spear.png',
         backAsset: 'assets/images/fighter_class_back.png',
         coin: 2,
@@ -656,7 +717,7 @@ List<Deck> decks = [
     PlayingCard(
         name: 'fighter_sword',
         description: 'Sword',
-        type: 'skill',
+        type: 'equipment',
         frontAsset: 'assets/images/fighter_sword.png',
         backAsset: 'assets/images/fighter_class_back.png',
         coin: 2,
