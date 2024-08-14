@@ -43,6 +43,7 @@ class _CardSelectionScreenState extends State<CardSelectionScreen> {
         appBar: AppBar(title: Text(widget.title), automaticallyImplyLeading: false),
         body: Column(
           children: [
+            SizedBox(height: 20.0),
             Expanded(
               child: CardsCarousel(
                 onCarouselChange: (index) => {},
@@ -51,6 +52,7 @@ class _CardSelectionScreenState extends State<CardSelectionScreen> {
                 onCardTap: _toggleCardSelection,
               ),
             ),
+            SizedBox(height: 20.0),
           ],
         ));
   }

@@ -131,8 +131,8 @@ class _MasonryGridScreenState extends State<MasonryGridScreen> {
               : null,
           child: Text('Submit'),
           style: ElevatedButton.styleFrom(
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            textStyle: TextStyle(fontSize: 18),
+            backgroundColor: Colors.black, // Background color
+            foregroundColor: Colors.white, // Text color
           ),
         ),
       ),

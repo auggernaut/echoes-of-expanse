@@ -30,6 +30,12 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.black,
         scaffoldBackgroundColor: Colors.white,
         textTheme: TextTheme(
+          displayLarge: GoogleFonts.pirataOne(
+            fontSize: 150.0,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+            height: 1.5,
+          ),
           headlineLarge: GoogleFonts.pirataOne(
             fontSize: 36.0,
             fontWeight: FontWeight.bold,
