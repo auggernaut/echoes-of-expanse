@@ -714,7 +714,7 @@ List<Deck> decks = [
         weight: 1),
     PlayingCard(
       name: 'fighter_pride',
-      description: 'Pride',
+      description: 'Proud',
       type: 'drive',
       frontAsset: 'assets/images/fighter_pride.png',
       backAsset: 'assets/images/fighter_class_back.png',

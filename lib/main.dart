@@ -29,9 +29,32 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Colors.black,
         scaffoldBackgroundColor: Colors.white,
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ButtonStyle(
+              minimumSize: MaterialStateProperty.all<Size>(Size(300, 60)),
+              padding: MaterialStateProperty.all<EdgeInsets>(
+                  EdgeInsets.only(right: 40.0, left: 40.0, bottom: 14.0)),
+              foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+              backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                (Set<MaterialState> states) {
+                  if (states.contains(MaterialState.hovered)) {
+                    return Colors.grey; // Hover color
+                  }
+                  return Colors.black; // Default color
+                },
+              ),
+              textStyle: MaterialStateProperty.all<TextStyle>(
+                GoogleFonts.texturina(
+                  fontSize: 22.0,
+                  fontWeight: FontWeight.normal,
+                  color: Colors.black,
+                ),
+              ),
+              alignment: Alignment.center),
+        ),
         textTheme: TextTheme(
-          displayLarge: GoogleFonts.pirataOne(
-            fontSize: 150.0,
+          displayLarge: GoogleFonts.cinzel(
+            fontSize: 50.0,
             fontWeight: FontWeight.bold,
             color: Colors.black,
             height: 1.5,
@@ -54,12 +77,17 @@ class MyApp extends StatelessWidget {
             color: Colors.black,
           ),
           bodyLarge: GoogleFonts.texturina(
-            fontSize: 18.0,
+            fontSize: 28.0,
             fontWeight: FontWeight.normal,
             color: Colors.black,
           ),
           bodyMedium: GoogleFonts.texturina(
-            fontSize: 14.0,
+            fontSize: 18.0,
+            fontWeight: FontWeight.normal,
+            color: Colors.black,
+          ),
+          labelMedium: GoogleFonts.texturina(
+            fontSize: 12.0,
             fontWeight: FontWeight.normal,
             color: Colors.black,
           ),
@@ -79,7 +107,7 @@ class MyApp extends StatelessWidget {
         appBarTheme: AppBarTheme(
           color: Colors.black,
           iconTheme: const IconThemeData(color: Colors.white),
-          titleTextStyle: GoogleFonts.pirataOne(
+          titleTextStyle: GoogleFonts.cinzel(
             textStyle: const TextStyle(color: Colors.white, fontSize: 20),
           ),
         ),

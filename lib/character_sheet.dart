@@ -156,6 +156,7 @@ class _CharacterSheetState extends State<CharacterSheet> {
       children: [
         const SizedBox(height: 8), // Space between label and line
         TextField(
+          style: Theme.of(context).textTheme.bodyLarge,
           controller: controller,
           decoration: InputDecoration(
             // border: OutlineInputBorder(),
@@ -168,7 +169,10 @@ class _CharacterSheetState extends State<CharacterSheet> {
           height: 1,
           color: Colors.black,
         ),
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w100, fontSize: 12)),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelMedium,
+        ),
         const SizedBox(height: 8), // Space below the line
       ],
     );
@@ -179,10 +183,13 @@ class _CharacterSheetState extends State<CharacterSheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8), // Space between label and line
-        Text(value, style: TextStyle(fontSize: 20)),
+        Text(
+          value,
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
         Container(
           height: 1,
-          color: Colors.black,
+          color: Colors.black.withOpacity(0.5),
         ),
         Text(label, style: const TextStyle(fontWeight: FontWeight.w100, fontSize: 12)),
         const SizedBox(height: 8), // Space below the line

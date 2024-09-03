@@ -69,10 +69,6 @@ class _TreasureListState extends State<TreasureList> {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          IconButton(
-            icon: Icon(Icons.store),
-            onPressed: () => _removeItem(item.id),
-          ),
           Expanded(
             flex: 8,
             child: TextField(
@@ -141,6 +137,12 @@ class _TreasureListState extends State<TreasureList> {
               },
             ),
           ),
+          Expanded(
+              flex: 1,
+              child: IconButton(
+                icon: Icon(Icons.store),
+                onPressed: () => _removeItem(item.id),
+              )),
         ],
       ),
     );
@@ -161,6 +163,7 @@ class _TreasureListState extends State<TreasureList> {
             Expanded(flex: 2, child: Icon(Icons.circle, color: Colors.black.withOpacity(0.2))),
             Expanded(
                 flex: 2, child: Icon(Icons.fitness_center, color: Colors.black.withOpacity(0.2))),
+            Expanded(flex: 1, child: Container()),
           ],
         ),
         ...items.asMap().entries.map((entry) {
