@@ -21,7 +21,7 @@ class IntroPage extends StatelessWidget {
             children: [
               titleSection(context, constraints),
               SizedBox(height: 100),
-              whatIsThisSection(context),
+              whatIsThisSection(context, constraints),
               whereDidThisComeFromSection(context),
               howIsThisDifferent(context),
               whatsNext(context),
@@ -48,7 +48,7 @@ class IntroPage extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 16.0, right: 16.0, left: 16.0),
       child: Text(
         // "Dive into an epic tabletop roleplay adventure where fast, easy setup meets rich character development. Whether you're a newcomer or an experienced player, this game is designed to get you started quickly while offering a deep, narrative-driven experience.",
-        "The narrative-driven roleplay system without all the fuss.",
+        "The tabletop roleplay game without all the fuss.",
         // "Build an epic character in 5 minutes.",
         textAlign: isDesktopLayout ? TextAlign.left : TextAlign.center,
         style: Theme.of(context).textTheme.bodyLarge,
@@ -63,7 +63,7 @@ class IntroPage extends StatelessWidget {
             MaterialPageRoute(builder: (context) => CharacterCreationManager()),
           );
         },
-        child: const Text("Build a character in 30 seconds"),
+        child: const Text("Make a character in 1 min"),
       ),
     );
 
@@ -71,13 +71,14 @@ class IntroPage extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: isDesktopLayout ? 1000 : 600),
         child: isDesktopLayout
-            ? desktopLayout(logoImage, brandImage, introText, startButton)
-            : mobileLayout(logoImage, brandImage, introText, startButton),
+            ? titleSectionDesktopLayout(logoImage, brandImage, introText, startButton)
+            : titleSectionMobileLayout(logoImage, brandImage, introText, startButton),
       ),
     );
   }
 
-  Widget desktopLayout(Widget logoImage, Widget brandImage, Widget introText, Widget startButton) {
+  Widget titleSectionDesktopLayout(
+      Widget logoImage, Widget brandImage, Widget introText, Widget startButton) {
     return Row(
       children: [
         Expanded(
@@ -100,7 +101,8 @@ class IntroPage extends StatelessWidget {
     );
   }
 
-  Widget mobileLayout(Widget logoImage, Widget brandImage, Widget introText, Widget startButton) {
+  Widget titleSectionMobileLayout(
+      Widget logoImage, Widget brandImage, Widget introText, Widget startButton) {
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -113,100 +115,98 @@ class IntroPage extends StatelessWidget {
     );
   }
 
-  // Inside the IntroPage class
+  Widget whatIsThisSection(BuildContext context, BoxConstraints constraints) {
+    bool isMobileLayout = constraints.maxWidth < 600;
+    List<Widget> benefitItems = [
+      benefitItem(
+          context,
+          'Easy to learn',
+          "The initial instructions can be read in a minute. More rules are introduced as you need them. No session zero required, 10 minutes of explanation and you're off!",
+          'assets/images/benefit-rules.webp',
+          isMobileLayout,
+          0),
+      benefitItem(
+          context,
+          'Effortless character development',
+          "Pick some cards. Every choice you make helps tell your character's story. As you play, see only the cards that are relevant to your character.",
+          'assets/images/benefit-cards.webp',
+          isMobileLayout,
+          1),
+      benefitItem(
+          context,
+          'No pencils or paper',
+          "Everything is included here. Your character sheet is auto-generated based on your card selections. Just click to change stats, add items, and spend coin.",
+          'assets/images/benefit-sheet.webp',
+          isMobileLayout,
+          2),
+      benefitItem(
+          context,
+          'Compatible with Dungeon World',
+          "While optimized for shorter-term play, you can run Echoes of Expanse with any Dungeon World dungeon starter. Just map Wisdom, Intelligence to Smarts; Dexterity, Strength to Power; and Constitution to Grit.",
+          'assets/images/dw-use-logo.jpeg',
+          isMobileLayout,
+          3),
+    ];
 
-  Widget whatIsThisSection(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "What is this?",
+            style: Theme.of(context).textTheme.displayLarge,
+          ),
+          SizedBox(height: 10.0), // Add some spacing between headline and body text
+          Text(
+            "Echoes of Expanse is a rules-light tabletop roleplay game designed to be easy to learn, teach others, and play. This app gives you all the tools you need to play a character in a oneshot or short campaign adventure.",
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          SizedBox(height: 20.0),
+          ...benefitItems,
+        ],
+      ),
+    );
+  }
+
+  Widget benefitItem(BuildContext context, String title, String description, String imagePath,
+      bool isMobileLayout, int index) {
+    Widget image = Image.asset(imagePath, width: 300);
+    Widget textContent = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: Theme.of(context).textTheme.bodyLarge),
+        Text(description, style: Theme.of(context).textTheme.bodyMedium),
+        SizedBox(height: 40.0), // Add some spacing between text items
+      ],
+    );
+
+    if (isMobileLayout) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: Column(
+          children: [image, textContent],
+        ),
+      );
+    } else {
+      List<Widget> rowChildren = index.isEven
+          ? [
+              image,
+              Expanded(child: Padding(padding: EdgeInsets.only(left: 16.0), child: textContent))
+            ]
+          : [
+              Expanded(child: Padding(padding: EdgeInsets.only(right: 16.0), child: textContent)),
+              image
+            ];
+
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "What is this?",
-              style: Theme.of(context).textTheme.displayLarge,
-            ),
-            SizedBox(height: 10.0), // Add some spacing between headline and body text
-            Text(
-              "Echoes of Expanse is a rules-light tabletop roleplay game designed to be easy to learn, teach others, and play. This app gives you all the tools you need to play a character in a oneshot or short campaign adventure.",
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            SizedBox(height: 20.0),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Row(
-                  children: [
-                    Image.asset(
-                      'assets/images/benefit-rules.webp',
-                      width: 400,
-                    ),
-                    Expanded(
-                        child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Easy to learn", style: Theme.of(context).textTheme.bodyLarge),
-                        Text(
-                          "The initial instructions can be read in a minute. More rules are introduced as you need them. No session zero required, 10 minutes of explanation and you're off!",
-                          style: Theme.of(context).textTheme.bodyMedium,
-                          // overflow: TextOverflow.ellipsis,
-                        )
-                      ],
-                    )),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                      Text("Effortless character development",
-                          style: Theme.of(context).textTheme.bodyLarge),
-                      Text(
-                          "Pick some cards. Every choice you make helps tell your character's story. As you play, see only the cards that are relevant to your character.",
-                          style: Theme.of(context).textTheme.bodyMedium),
-                    ])),
-                    Image.asset(
-                      'assets/images/benefit-cards.webp',
-                      width: 400,
-                    )
-                  ],
-                ),
-                Row(
-                  children: [
-                    Image.asset(
-                      'assets/images/benefit-sheet.webp',
-                      width: 400,
-                    ),
-                    Expanded(
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      // Replace with desired icon
-                      Text("No pencils or paper", style: Theme.of(context).textTheme.bodyLarge),
-                      Text(
-                          "Everything is included here. Your character sheet is auto-generated based on your card selections. Just click to change stats, add items, and spend coin.",
-                          style: Theme.of(context).textTheme.bodyMedium),
-                    ])),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                      Text("Compatible with Dungeon World",
-                          style: Theme.of(context).textTheme.bodyLarge),
-                      Text(
-                          "While optimized for shorter-term play, you can run Echoes of Expanse with any Dungeon World dungeon starter. Just map Wisdom, Intelligence to Smarts; Dexterity, Strength to Power; and Constitution to Grit.",
-                          style: Theme.of(context).textTheme.bodyMedium),
-                    ])),
-                    SizedBox(width: 50),
-                    Image.asset(
-                      'assets/images/dw-use-logo.jpeg',
-                      width: 300,
-                    )
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ));
+          children: rowChildren,
+        ),
+      );
+    }
   }
 
   Widget whereDidThisComeFromSection(BuildContext context) {
@@ -283,7 +283,7 @@ class IntroPage extends StatelessWidget {
               MaterialPageRoute(builder: (context) => CharacterCreationManager()),
             );
           },
-          child: Text("Build your character"),
+          child: Text("Build your character for free"),
         ),
       ],
     );

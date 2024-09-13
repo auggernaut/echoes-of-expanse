@@ -1,10 +1,13 @@
+import 'package:echoes_of_expanse/gamemaster_view.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'data.dart'; // Ensure you have the correct import for your data classes
-import 'game_screen.dart'; // Ensure you have the correct import for your game screen
-import 'intro_page.dart'; // Ensure you have the correct import for your intro page
+import 'character_data.dart';
+import 'game_screen.dart';
+import 'intro_page.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 void main() async {
+  setUrlStrategy(PathUrlStrategy());
   WidgetsFlutterBinding.ensureInitialized();
   Hand userHand = Hand();
   bool hasSavedData = await checkForSavedData(userHand);
@@ -26,6 +29,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      onGenerateRoute: (settings) => _onGenerateRoute(settings, hasSavedData, userHand),
       theme: ThemeData(
         primaryColor: Colors.black,
         scaffoldBackgroundColor: Colors.white,
@@ -112,7 +116,27 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: hasSavedData ? GameScreen(hand: userHand) : const IntroPage(),
     );
   }
+}
+
+Route<dynamic> _onGenerateRoute(RouteSettings settings, bool hasSavedData, Hand userHand) {
+  // if (settings.name!.startsWith('/game/')) {
+  //   final gameId = settings.name!.substring('/game/'.length);
+  //   // Set the global gameId variable here
+  //   Global.setGameId(gameId);
+
+  //   // Navigate to the appropriate screen
+  //   return MaterialPageRoute(builder: (context) => PlayPage(gameId));
+  // }
+
+  // Default route (e.g., home)
+  print(settings.name);
+
+  if (settings.name!.startsWith('/gamemaster')) {
+    return MaterialPageRoute(builder: (context) => const GameMasterView());
+  }
+
+  return MaterialPageRoute(
+      builder: (context) => hasSavedData ? GameScreen(hand: userHand) : const IntroPage());
 }

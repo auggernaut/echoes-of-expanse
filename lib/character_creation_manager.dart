@@ -1,6 +1,6 @@
 import 'package:echoes_of_expanse/card_selection_screen.dart';
 import 'package:echoes_of_expanse/cards_masonry.dart';
-import 'package:echoes_of_expanse/data.dart'; // Ensure this contains your Deck, PlayingCard models
+import 'package:echoes_of_expanse/character_data.dart'; // Ensure this contains your Deck, CharacterCard models
 import 'package:echoes_of_expanse/deck_selection_screen.dart';
 import 'package:echoes_of_expanse/game_screen.dart';
 import 'package:flutter/material.dart';
@@ -12,11 +12,11 @@ class CharacterCreationManager extends StatefulWidget {
 
 class _CharacterCreationManagerState extends State<CharacterCreationManager> {
   late Deck selectedDeck = decks.first;
-  late PlayingCard selectedBackground = decks.first.cards.first;
-  late PlayingCard selectedAncestry = decks.first.cards.first;
-  late PlayingCard selectedBond = decks.first.cards.first;
-  late PlayingCard selectedDrive = decks.first.cards.first;
-  late List<PlayingCard> selectedSkills = decks.first.cards;
+  late CharacterCard selectedBackground = decks.first.cards.first;
+  late CharacterCard selectedAncestry = decks.first.cards.first;
+  late CharacterCard selectedBond = decks.first.cards.first;
+  late CharacterCard selectedDrive = decks.first.cards.first;
+  late List<CharacterCard> selectedSkills = decks.first.cards;
 
   String instructions = "Pick a character class";
 
@@ -78,7 +78,7 @@ class _CharacterCreationManagerState extends State<CharacterCreationManager> {
     _goNext();
   }
 
-  void _selectBackground(List<PlayingCard> cards) {
+  void _selectBackground(List<CharacterCard> cards) {
     setState(() {
       selectedBackground = cards[0];
       instructions = "Pick an Ancestry";
@@ -87,7 +87,7 @@ class _CharacterCreationManagerState extends State<CharacterCreationManager> {
     _goNext();
   }
 
-  void _selectAncestry(List<PlayingCard> cards) {
+  void _selectAncestry(List<CharacterCard> cards) {
     setState(() {
       selectedAncestry = cards[0];
       instructions = "Pick a Bond";
@@ -96,7 +96,7 @@ class _CharacterCreationManagerState extends State<CharacterCreationManager> {
     _goNext();
   }
 
-  void _selectBond(List<PlayingCard> cards) {
+  void _selectBond(List<CharacterCard> cards) {
     setState(() {
       selectedBond = cards[0];
       instructions = "Pick a Drive";
@@ -105,7 +105,7 @@ class _CharacterCreationManagerState extends State<CharacterCreationManager> {
     _goNext();
   }
 
-  void _selectDrive(List<PlayingCard> cards) {
+  void _selectDrive(List<CharacterCard> cards) {
     setState(() {
       selectedDrive = cards[0];
       instructions = "Pick 4 more cards...";
@@ -114,7 +114,7 @@ class _CharacterCreationManagerState extends State<CharacterCreationManager> {
     _goNext();
   }
 
-  void _selectSkills(List<PlayingCard> cards) {
+  void _selectSkills(List<CharacterCard> cards) {
     for (int i = 0; i < cards.length; i++) {
       userHand.addCard(cards[i]);
     }

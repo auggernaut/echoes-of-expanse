@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flip_card/flip_card.dart';
-import 'package:echoes_of_expanse/data.dart'; // Update this import path as needed
+import 'package:echoes_of_expanse/character_data.dart';
 
 class CardsCarousel extends StatefulWidget {
-  final List<PlayingCard> cards;
+  final List<CharacterCard> cards;
   final Function onCarouselChange;
   final Function onCardTap;
   final String cardTapBehavior;
@@ -91,7 +91,7 @@ class _CardsCarouselState extends State<CardsCarousel> {
             loop: false));
   }
 
-  Widget _buildFlipCard(PlayingCard card) {
+  Widget _buildFlipCard(CharacterCard card) {
     double screenWidth = MediaQuery.of(context).size.width;
     BoxFit fit = screenWidth < 600 ? BoxFit.fitWidth : BoxFit.fitHeight;
     return FlipCard(
@@ -117,7 +117,7 @@ class _CardsCarouselState extends State<CardsCarousel> {
     );
   }
 
-  Widget _buildDimmableCard(PlayingCard card, int index) {
+  Widget _buildDimmableCard(CharacterCard card, int index) {
     double screenWidth = MediaQuery.of(context).size.width;
     BoxFit fit = screenWidth < 600 ? BoxFit.fitWidth : BoxFit.fitHeight;
     final card = widget.cards[index];

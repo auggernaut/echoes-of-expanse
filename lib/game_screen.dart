@@ -2,7 +2,7 @@ import 'package:echoes_of_expanse/character_sheet.dart';
 import 'package:echoes_of_expanse/deck_view.dart';
 import 'package:echoes_of_expanse/intro_page.dart';
 import 'package:flutter/material.dart';
-import 'package:echoes_of_expanse/data.dart';
+import 'package:echoes_of_expanse/character_data.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class GameScreen extends StatefulWidget {
@@ -116,7 +116,7 @@ void _clearCharacterData(BuildContext context, Hand hand) async {
   );
 }
 
-void _onCardTap(PlayingCard card) {
+void _onCardTap(CharacterCard card) {
   // Handle card tap if needed
 }
 

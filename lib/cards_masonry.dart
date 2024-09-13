@@ -1,9 +1,9 @@
-import 'package:echoes_of_expanse/data.dart';
+import 'package:echoes_of_expanse/character_data.dart';
 import 'package:flutter/material.dart';
 
 class MasonryGridScreen extends StatefulWidget {
-  final List<PlayingCard> cards;
-  final Function(List<PlayingCard>) onSubmit;
+  final List<CharacterCard> cards;
+  final Function(List<CharacterCard>) onSubmit;
 
   MasonryGridScreen({required this.cards, required this.onSubmit});
 
@@ -13,7 +13,7 @@ class MasonryGridScreen extends StatefulWidget {
 
 class _MasonryGridScreenState extends State<MasonryGridScreen> {
   late int remainingCoins;
-  List<PlayingCard> selectedCards = [];
+  List<CharacterCard> selectedCards = [];
 
   @override
   void initState() {
@@ -36,7 +36,7 @@ class _MasonryGridScreenState extends State<MasonryGridScreen> {
         ]));
   }
 
-  Widget _buildSection(String title, List<PlayingCard> cards) {
+  Widget _buildSection(String title, List<CharacterCard> cards) {
     return SliverPadding(
       padding: const EdgeInsets.all(8.0),
       sliver: SliverList(
@@ -60,7 +60,7 @@ class _MasonryGridScreenState extends State<MasonryGridScreen> {
     );
   }
 
-  Widget _buildMasonryGrid(List<PlayingCard> cards) {
+  Widget _buildMasonryGrid(List<CharacterCard> cards) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final screenWidth = constraints.maxWidth;
@@ -85,7 +85,7 @@ class _MasonryGridScreenState extends State<MasonryGridScreen> {
     );
   }
 
-  Widget _buildCardItem(PlayingCard card) {
+  Widget _buildCardItem(CharacterCard card) {
     bool isSelected = selectedCards.contains(card);
     return GestureDetector(
       onTap: () {

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'data.dart'; // Assuming this file contains your Deck and PlayingCard models
+import 'character_data.dart'; // Assuming this file contains your Deck and CharacterCard models
 import 'cards_carousel.dart'; // Your existing CardsCarousel widget
 
 class CardSelectionScreen extends StatefulWidget {
-  final List<PlayingCard> cards;
+  final List<CharacterCard> cards;
   final int maxCards;
-  final Function(List<PlayingCard>) onSubmit;
+  final Function(List<CharacterCard>) onSubmit;
   final String title;
 
   const CardSelectionScreen(
@@ -20,9 +20,9 @@ class CardSelectionScreen extends StatefulWidget {
 }
 
 class _CardSelectionScreenState extends State<CardSelectionScreen> {
-  final List<PlayingCard> _selectedCards = [];
+  final List<CharacterCard> _selectedCards = [];
 
-  void _toggleCardSelection(PlayingCard card) {
+  void _toggleCardSelection(CharacterCard card) {
     setState(() {
       if (_selectedCards.contains(card)) {
         _selectedCards.remove(card);

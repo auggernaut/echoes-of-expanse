@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'data.dart'; // Your data model and predefined decks
+import 'character_data.dart'; // Your data model and predefined decks
 import 'cards_carousel.dart'; // Your CardsCarousel widget
 
 class DeckSelectionScreen extends StatefulWidget {

@@ -1,11 +1,11 @@
 {
-    "name": "echoes_of_expanse",
-    "short_name": "echoes_of_expanse",
+    "name": "Echoes of Expanse",
+    "short_name": "EofE",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "A rules-light tabletop RPG app for easy character creation and gameplay.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

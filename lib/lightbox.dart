@@ -1,9 +1,9 @@
-import 'package:echoes_of_expanse/data.dart';
+import 'package:echoes_of_expanse/character_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class Lightbox extends StatefulWidget {
-  final List<PlayingCard> cards;
+  final List<CharacterCard> cards;
   final int initialIndex;
 
   Lightbox({required this.cards, required this.initialIndex});
