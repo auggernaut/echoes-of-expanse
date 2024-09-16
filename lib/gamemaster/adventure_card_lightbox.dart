@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'gamemaster/adventure_data.dart';
+import 'adventure_data.dart';
 
 class AdventureCardLightbox extends StatefulWidget {
   final List<AdventureCard> cards;

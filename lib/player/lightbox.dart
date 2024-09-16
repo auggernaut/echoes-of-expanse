@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:echoes_of_expanse/character_data.dart';
+import 'package:echoes_of_expanse/player/character_data.dart';
 
 class Lightbox extends StatefulWidget {
   final List<CharacterCard> cards;

@@ -1,5 +1,5 @@
-import 'package:echoes_of_expanse/character_data.dart';
-import 'package:echoes_of_expanse/treasure_list.dart';
+import 'package:echoes_of_expanse/player/character_data.dart';
+import 'package:echoes_of_expanse/player/treasure_list.dart';
 import 'package:flutter/material.dart';
 
 class CharacterSheet extends StatefulWidget {

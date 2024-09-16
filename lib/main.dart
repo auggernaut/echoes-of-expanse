@@ -1,8 +1,8 @@
-import 'package:echoes_of_expanse/gamemaster_view.dart';
+import 'package:echoes_of_expanse/gamemaster/gamemaster_view.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'character_data.dart';
-import 'game_screen.dart';
+import 'player/character_data.dart';
+import 'player/game_screen.dart';
 import 'intro_page.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:firebase_core/firebase_core.dart';

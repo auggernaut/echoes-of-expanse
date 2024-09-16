@@ -1,6 +1,6 @@
 import 'package:echoes_of_expanse/player/character_data.dart';
 import 'package:flutter/material.dart';
-import 'player/lightbox.dart';
+import 'lightbox.dart';
 
 class DeckView extends StatefulWidget {
   final Hand hand;

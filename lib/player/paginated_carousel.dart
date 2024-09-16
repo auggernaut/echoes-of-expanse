@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'adventure_data.dart';
+import '../gamemaster/adventure_data.dart';
 
 class PaginatedCarousel extends StatefulWidget {
   final List<AdventureCard> cards;

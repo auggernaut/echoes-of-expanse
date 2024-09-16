@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'adventure_data.dart';
-import 'player/paginated_carousel.dart';
-import 'gamemaster/scene_area.dart';
+import '../player/paginated_carousel.dart';
+import 'scene_area.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class GameMasterView extends StatefulWidget {

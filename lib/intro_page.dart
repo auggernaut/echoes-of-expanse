@@ -1,4 +1,4 @@
-import 'package:echoes_of_expanse/character_creation_manager.dart';
+import 'package:echoes_of_expanse/player/character_creation_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';

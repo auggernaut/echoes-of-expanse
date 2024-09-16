@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:echoes_of_expanse/adventure_card_lightbox.dart';
+import 'package:echoes_of_expanse/gamemaster/adventure_card_lightbox.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'adventure_data.dart';
