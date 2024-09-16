@@ -5,10 +5,15 @@ import 'character_data.dart';
 import 'game_screen.dart';
 import 'intro_page.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
-  setUrlStrategy(PathUrlStrategy());
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  setUrlStrategy(PathUrlStrategy());
   Hand userHand = Hand();
   bool hasSavedData = await checkForSavedData(userHand);
 
@@ -134,9 +139,11 @@ Route<dynamic> _onGenerateRoute(RouteSettings settings, bool hasSavedData, Hand 
   print(settings.name);
 
   if (settings.name!.startsWith('/gamemaster')) {
-    return MaterialPageRoute(builder: (context) => const GameMasterView());
+    // final roomId = settings.name!.substring('/gamemaster/'.length);
+    return MaterialPageRoute(builder: (context) => GameMasterView(roomId: '123'));
   }
 
   return MaterialPageRoute(
-      builder: (context) => hasSavedData ? GameScreen(hand: userHand) : const IntroPage());
+      builder: (context) =>
+          hasSavedData ? GameScreen(hand: userHand, roomId: '123') : const IntroPage());
 }

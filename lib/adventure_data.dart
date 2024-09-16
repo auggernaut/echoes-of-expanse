@@ -7,8 +7,13 @@ class AdventureCard {
   final int? weight;
   final int? coin;
   final int? hp;
+  Map<String, double> position;
+  String? id; // New field to store the Firestore document ID
+  bool isHovered = false;
 
   AdventureCard({
+    this.id,
+    this.isHovered = false,
     required this.name,
     required this.type,
     required this.frontAsset,
@@ -17,10 +22,36 @@ class AdventureCard {
     this.weight,
     this.coin,
     this.hp,
+    this.position = const {'x': 0, 'y': 0},
   });
 
   void flip() {
     isFlipped = !isFlipped;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'type': type,
+      'frontAsset': frontAsset,
+      'backAsset': backAsset,
+      'isFlipped': isFlipped,
+      'weight': weight,
+      'coin': coin,
+      'hp': hp,
+    };
+  }
+
+  factory AdventureCard.fromJson(String id, Map<String, dynamic> json) {
+    return AdventureCard(
+      id: id,
+      name: json['name'],
+      type: json['type'] as String? ?? 'default', // Provide a default value
+      frontAsset: json['frontAsset'],
+      backAsset: json['backAsset'],
+      isFlipped: json['isFlipped'] ?? false,
+      position: Map<String, double>.from(json['position'] ?? {'x': 0, 'y': 0}),
+    );
   }
 }
 

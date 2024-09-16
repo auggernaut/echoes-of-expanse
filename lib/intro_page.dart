@@ -48,7 +48,7 @@ class IntroPage extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 16.0, right: 16.0, left: 16.0),
       child: Text(
         // "Dive into an epic tabletop roleplay adventure where fast, easy setup meets rich character development. Whether you're a newcomer or an experienced player, this game is designed to get you started quickly while offering a deep, narrative-driven experience.",
-        "The tabletop roleplay game without all the fuss.",
+        "The tabletop roleplay game without all the fuss...",
         // "Build an epic character in 5 minutes.",
         textAlign: isDesktopLayout ? TextAlign.left : TextAlign.center,
         style: Theme.of(context).textTheme.bodyLarge,

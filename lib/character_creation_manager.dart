@@ -129,7 +129,7 @@ class _CharacterCreationManagerState extends State<CharacterCreationManager> {
     } else {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => GameScreen(hand: userHand)),
+        MaterialPageRoute(builder: (context) => GameScreen(hand: userHand, roomId: '123')),
       );
     }
   }

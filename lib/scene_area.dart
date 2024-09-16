@@ -1,35 +1,70 @@
+import 'dart:async';
+
+import 'package:echoes_of_expanse/adventure_card_lightbox.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'adventure_data.dart';
 
 class SceneArea extends StatefulWidget {
-  final List<AdventureCard> selectedCards;
+  final String roomId;
 
-  const SceneArea({Key? key, required this.selectedCards}) : super(key: key);
+  const SceneArea({Key? key, required this.roomId}) : super(key: key);
 
   @override
   _SceneAreaState createState() => _SceneAreaState();
 }
 
 class _SceneAreaState extends State<SceneArea> {
-  Map<AdventureCard, Offset> cardPositions = {};
+  List<AdventureCard> sceneCards = [];
+  late Stream<QuerySnapshot> sceneStream;
+  StreamSubscription<QuerySnapshot>? _streamSubscription;
 
   @override
   void initState() {
     super.initState();
-    _initializeCardPositions();
+    _listenToSceneChanges();
+  }
+
+  void _listenToSceneChanges() {
+    sceneStream = FirebaseFirestore.instance
+        .collection('rooms')
+        .doc(widget.roomId)
+        .collection('scene')
+        .snapshots();
+
+    _streamSubscription = sceneStream.listen((snapshot) {
+      if (mounted) {
+        setState(() {
+          sceneCards = snapshot.docs
+              .map((doc) => AdventureCard.fromJson(doc.id, doc.data() as Map<String, dynamic>))
+              .toList();
+        });
+      }
+    }, onError: (error) {
+      print('Error in sceneStream: $error');
+    });
   }
 
   @override
-  void didUpdateWidget(SceneArea oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _initializeCardPositions();
+  void dispose() {
+    _streamSubscription?.cancel();
+    super.dispose();
   }
 
-  void _initializeCardPositions() {
-    for (var card in widget.selectedCards) {
-      if (!cardPositions.containsKey(card)) {
-        cardPositions[card] = Offset.zero;
-      }
+  void _updateCardPosition(AdventureCard card, Offset position) {
+    if (card.id != null) {
+      FirebaseFirestore.instance
+          .collection('rooms')
+          .doc(widget.roomId)
+          .collection('scene')
+          .doc(card.id)
+          .update({
+        'position': {'x': position.dx, 'y': position.dy},
+      }).catchError((error) {
+        print('Error updating card position: $error');
+      });
+    } else {
+      print('Error: Card ID is null');
     }
   }
 
@@ -38,15 +73,15 @@ class _SceneAreaState extends State<SceneArea> {
     return Container(
       color: Colors.grey[200],
       child: Stack(
-        children: widget.selectedCards.map((card) => _buildDraggableCard(card)).toList(),
+        children: sceneCards.map((card) => _buildDraggableCard(card)).toList(),
       ),
     );
   }
 
   Widget _buildDraggableCard(AdventureCard card) {
     return Positioned(
-      left: cardPositions[card]?.dx ?? 0,
-      top: cardPositions[card]?.dy ?? 0,
+      left: card.position['x'] ?? 0,
+      top: card.position['y'] ?? 0,
       child: Draggable<AdventureCard>(
         data: card,
         feedback: _buildCardWidget(card),
@@ -57,9 +92,7 @@ class _SceneAreaState extends State<SceneArea> {
         onDragEnd: (details) {
           final RenderBox renderBox = context.findRenderObject() as RenderBox;
           final localPosition = renderBox.globalToLocal(details.offset);
-          setState(() {
-            cardPositions[card] = localPosition;
-          });
+          _updateCardPosition(card, localPosition);
         },
         child: _buildCardWidget(card),
       ),
@@ -70,115 +103,78 @@ class _SceneAreaState extends State<SceneArea> {
     double width = 100;
     double height = 70;
     if (card.type.toLowerCase() == 'location') {
-      width = 200;
-      height = 140;
+      width = 150;
+      height = 105;
     }
 
-    return CustomPaint(
-      painter: CardPainter(cardType: card.type),
-      child: SizedBox(
-        width: width,
-        height: height,
-        child: ClipPath(
-          clipper: CardShapeClipper(cardType: card.type),
-          child: Image.asset(
-            card.isFlipped ? card.backAsset : card.frontAsset,
-            fit: BoxFit.cover,
-            width: width,
-            height: height * 2,
-            alignment: Alignment.topCenter,
-          ),
+    return MouseRegion(
+      child: GestureDetector(
+        onTap: () => _showCardLightbox(card),
+        child: Stack(
+          children: [
+            Container(
+              width: width,
+              height: height,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.asset(
+                  card.isFlipped ? card.backAsset : card.frontAsset,
+                  fit: BoxFit.cover,
+                  width: width,
+                  height: height * 2,
+                  alignment: Alignment.topCenter,
+                ),
+              ),
+            ),
+            Positioned(
+              right: 5,
+              top: 5,
+              child: Visibility(
+                visible: card.isHovered,
+                child: GestureDetector(
+                  onTap: () => _removeCard(card),
+                  child: Container(
+                    padding: EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.close, size: 16, color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
+      ),
+      onEnter: (_) => setState(() => card.isHovered = true),
+      onExit: (_) => setState(() => card.isHovered = false),
+    );
+  }
+
+  void _showCardLightbox(AdventureCard card) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AdventureCardLightbox(
+        cards: sceneCards,
+        initialIndex: sceneCards.indexOf(card),
       ),
     );
   }
-}
 
-class CardPainter extends CustomPainter {
-  final String cardType;
-
-  CardPainter({required this.cardType});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final path = getCardPath(cardType, size);
-    final shadow = Path()
-      ..addPath(path, Offset(0, 4))
-      ..addPath(path, Offset(0, 3))
-      ..addPath(path, Offset(0, 2))
-      ..addPath(path, Offset(0, 1));
-
-    canvas.drawPath(
-      shadow,
-      Paint()
-        ..color = Colors.black.withOpacity(0.1)
-        ..style = PaintingStyle.fill,
-    );
-
-    canvas.drawPath(
-      path,
-      Paint()
-        ..color = Colors.white
-        ..style = PaintingStyle.fill,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-Path getCardPath(String cardType, Size size) {
-  final clipper = CardShapeClipper(cardType: cardType);
-  return clipper.getClip(size);
-}
-
-class CardShapeClipper extends CustomClipper<Path> {
-  final String cardType;
-
-  CardShapeClipper({required this.cardType});
-
-  @override
-  Path getClip(Size size) {
-    switch (cardType.toLowerCase()) {
-      case 'location':
-        return _getLocationPath(size);
-      case 'threat':
-        return _getThreatPath(size);
-      case 'character':
-        return _getCharacterPath(size);
-      default:
-        return _getLocationPath(size);
+  void _removeCard(AdventureCard card) {
+    if (card.id != null) {
+      FirebaseFirestore.instance
+          .collection('rooms')
+          .doc(widget.roomId)
+          .collection('scene')
+          .doc(card.id)
+          .delete();
+    } else {
+      print('Error: Card ID is null');
     }
   }
-
-  Path _getLocationPath(Size size) {
-    return Path()..addRect(Rect.fromLTWH(0, 0, size.width, size.height));
-  }
-
-  Path _getThreatPath(Size size) {
-    return Path()
-      ..addRRect(RRect.fromRectAndRadius(
-        Rect.fromLTWH(0, 0, size.width, size.height),
-        Radius.circular(10),
-      ));
-  }
-
-  Path _getCharacterPath(Size size) {
-    final path = Path();
-    final diagonalCut = 15.0;
-
-    path.moveTo(diagonalCut, 0);
-    path.lineTo(size.width, 0);
-    path.lineTo(size.width - diagonalCut, size.height);
-    path.lineTo(0, size.height);
-    path.close();
-
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
-
-// Assuming you have this enum defined in your adventure_data.dart file
-enum CardType { location, threat, character }

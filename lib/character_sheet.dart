@@ -154,15 +154,15 @@ class _CharacterSheetState extends State<CharacterSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 8), // Space between label and line
+        const SizedBox(height: 4), // Space between label and line
         TextField(
-          style: Theme.of(context).textTheme.bodyLarge,
+          style: Theme.of(context).textTheme.bodyMedium,
           controller: controller,
           decoration: InputDecoration(
             // border: OutlineInputBorder(),
             // hintText: hintText,
             isDense: true,
-            contentPadding: EdgeInsets.symmetric(vertical: 8),
+            contentPadding: EdgeInsets.symmetric(vertical: 4),
           ),
         ),
         Container(
@@ -185,7 +185,7 @@ class _CharacterSheetState extends State<CharacterSheet> {
         const SizedBox(height: 8), // Space between label and line
         Text(
           value,
-          style: Theme.of(context).textTheme.bodyLarge,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         Container(
           height: 1,

@@ -1,14 +1,16 @@
 import 'package:echoes_of_expanse/character_sheet.dart';
 import 'package:echoes_of_expanse/deck_view.dart';
 import 'package:echoes_of_expanse/intro_page.dart';
+import 'package:echoes_of_expanse/scene_area.dart';
 import 'package:flutter/material.dart';
 import 'package:echoes_of_expanse/character_data.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
 class GameScreen extends StatefulWidget {
   final Hand hand;
+  final String roomId; // Add this line
 
-  GameScreen({super.key, required this.hand});
+  GameScreen({super.key, required this.hand, required this.roomId}); // Update this line
 
   @override
   _GameScreenState createState() => _GameScreenState();
@@ -24,11 +26,6 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Widget build(BuildContext context) {
-    List<Widget> _widgetOptions = <Widget>[
-      DeckView(hand: widget.hand),
-      CharacterSheet(hand: widget.hand),
-    ];
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("Echoes of Expanse"),
@@ -47,14 +44,23 @@ class _GameScreenState extends State<GameScreen> {
       body: LayoutBuilder(
         builder: (context, constraints) {
           if (constraints.maxWidth < 600) {
-            // Mobile layout with bottom navigation bar
-            return Center(
-              child: _widgetOptions.elementAt(_selectedIndex),
+            // Mobile layout
+            return IndexedStack(
+              index: _selectedIndex,
+              children: [
+                SceneArea(roomId: widget.roomId),
+                DeckView(hand: widget.hand),
+                CharacterSheet(hand: widget.hand),
+              ],
             );
           } else {
-            // Tablet/Desktop layout with side-by-side view
+            // Desktop layout
             return Row(
               children: [
+                Expanded(
+                  flex: 1,
+                  child: SceneArea(roomId: widget.roomId),
+                ),
                 Expanded(
                   flex: 2,
                   child: DeckView(hand: widget.hand),
@@ -72,7 +78,11 @@ class _GameScreenState extends State<GameScreen> {
         builder: (context, constraints) {
           if (constraints.maxWidth < 600) {
             return BottomNavigationBar(
-              items: const <BottomNavigationBarItem>[
+              items: <BottomNavigationBarItem>[
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.map),
+                  label: 'Scene',
+                ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.view_list),
                   label: 'Deck',

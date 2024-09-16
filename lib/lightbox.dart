@@ -1,6 +1,6 @@
-import 'package:echoes_of_expanse/character_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:echoes_of_expanse/character_data.dart';
 
 class Lightbox extends StatefulWidget {
   final List<CharacterCard> cards;
@@ -13,13 +13,14 @@ class Lightbox extends StatefulWidget {
 }
 
 class _LightboxState extends State<Lightbox> {
-  int currentIndex = 0;
-  FocusNode _focusNode = FocusNode();
+  late int currentIndex;
+  late FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
     currentIndex = widget.initialIndex;
+    _focusNode = FocusNode();
     _focusNode.requestFocus();
   }
 
@@ -42,67 +43,73 @@ class _LightboxState extends State<Lightbox> {
   @override
   Widget build(BuildContext context) {
     final card = widget.cards[currentIndex];
-    final cardWidth = 374.0;
-    final cardHeight = 522.0;
-    final lightboxWidth = cardWidth * 1.5;
-    final lightboxHeight = cardHeight * 1.2;
+    final size = MediaQuery.of(context).size;
+    final cardHeight = size.height * 0.8;
+    final cardWidth = cardHeight / 1.4;
 
-    return Dialog(
-      insetPadding: EdgeInsets.all(10),
-      backgroundColor: Colors.transparent, // Ensure the Dialog itself is transparent
-      child: RawKeyboardListener(
-        focusNode: _focusNode,
-        onKey: (RawKeyEvent event) {
-          if (event is RawKeyDownEvent) {
-            if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-              _nextCard();
-            } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-              _previousCard();
+    return GestureDetector(
+      onTap: _closeLightbox,
+      child: Material(
+        color: Colors.black54,
+        child: RawKeyboardListener(
+          focusNode: _focusNode,
+          onKey: (RawKeyEvent event) {
+            if (event is RawKeyDownEvent) {
+              if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+                _nextCard();
+              } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+                _previousCard();
+              } else if (event.logicalKey == LogicalKeyboardKey.escape) {
+                _closeLightbox();
+              }
             }
-          }
-        },
-        child: Container(
-          width: lightboxWidth,
-          height: lightboxHeight + 100, // Adjust for text and buttons
-          color: Colors.white, // Set the internal Container's background color to white
+          },
           child: Stack(
             children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: lightboxWidth,
-                    height: lightboxHeight,
-                    child: Image.asset(card.frontAsset, fit: BoxFit.contain),
-                  ),
-                  Text(
-                    card.description,
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-              Positioned(
-                top: 10,
-                left: 10,
-                child: IconButton(
-                  icon: Icon(Icons.close, size: 30),
-                  onPressed: _closeLightbox,
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: cardWidth,
+                      height: cardHeight,
+                      child: Image.asset(card.frontAsset, fit: BoxFit.contain),
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      card.description,
+                      style: TextStyle(fontSize: 18, color: Colors.white),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
               Positioned(
-                top: lightboxHeight / 2 - 25,
+                top: size.height / 2 - 25,
                 left: 10,
-                child: IconButton(
-                  icon: Icon(Icons.arrow_left, size: 50),
-                  onPressed: _previousCard,
+                child: GestureDetector(
+                  onTap: () {
+                    _previousCard();
+                  },
+                  child: Container(
+                    color: Colors.transparent,
+                    padding: EdgeInsets.all(16),
+                    child: Icon(Icons.arrow_left, size: 50, color: Colors.white),
+                  ),
                 ),
               ),
               Positioned(
-                top: lightboxHeight / 2 - 25,
+                top: size.height / 2 - 25,
                 right: 10,
-                child: IconButton(
-                  icon: Icon(Icons.arrow_right, size: 50),
-                  onPressed: _nextCard,
+                child: GestureDetector(
+                  onTap: () {
+                    _nextCard();
+                  },
+                  child: Container(
+                    color: Colors.transparent,
+                    padding: EdgeInsets.all(16),
+                    child: Icon(Icons.arrow_right, size: 50, color: Colors.white),
+                  ),
                 ),
               ),
             ],

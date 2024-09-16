@@ -26,7 +26,7 @@ class _DeckViewState extends State<DeckView> {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       final screenWidth = constraints.maxWidth;
-      const cardWidth = 300.0; // Adjust to fit 2 columns with padding
+      const cardWidth = 250.0; // Reduced from 300.0
       final crossAxisCount = (screenWidth / cardWidth).floor();
 
       return GridView.builder(
@@ -34,7 +34,7 @@ class _DeckViewState extends State<DeckView> {
           crossAxisCount: crossAxisCount,
           mainAxisSpacing: 4.0,
           crossAxisSpacing: 4.0,
-          childAspectRatio: 748 / 1044, // Aspect ratio of the card images
+          childAspectRatio: 748 / 1044, // Keep the aspect ratio of the card images
         ),
         itemCount: widget.hand.selectedCards.length,
         itemBuilder: (context, index) {
@@ -43,10 +43,14 @@ class _DeckViewState extends State<DeckView> {
             onTap: () => showLightbox(index),
             child: Column(
               children: [
-                Padding(
-                    padding: EdgeInsets.only(top: 5.0, right: 5.0, left: 5.0),
-                    child: Image.asset(card.frontAsset, fit: BoxFit.cover)),
-                // Text(card.name),
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.all(4.0), // Reduced padding
+                    child: Image.asset(card.frontAsset, fit: BoxFit.contain),
+                  ),
+                ),
+                // Uncomment the following line if you want to show card names
+                // Text(card.name, style: TextStyle(fontSize: 12)),
               ],
             ),
           );
