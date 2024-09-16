@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'adventure_data.dart';
-import '../player/paginated_carousel.dart';
+import 'paginated_carousel.dart';
 import 'scene_area.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -95,6 +95,9 @@ class _GameMasterViewState extends State<GameMasterView> with SingleTickerProvid
             tabs: _cardTypes.map((type) => Tab(text: type)).toList(),
             labelColor: Colors.black,
             unselectedLabelColor: Colors.grey,
+            labelStyle: Theme.of(context).textTheme.bodyMedium,
+            unselectedLabelStyle:
+                Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.grey),
           ),
           Expanded(
             child: currentDeck.isEmpty

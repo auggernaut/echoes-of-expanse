@@ -29,7 +29,7 @@ class _CharacterSheetState extends State<CharacterSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,7 +43,7 @@ class _CharacterSheetState extends State<CharacterSheet> {
                         key: 'characterName',
                         value: characterStats['characterName'] ?? '',
                         hintText: 'Your Name')),
-                SizedBox(
+                const SizedBox(
                   width: 50,
                   child: Center(child: Text('the')),
                 ),
@@ -52,7 +52,7 @@ class _CharacterSheetState extends State<CharacterSheet> {
                         label: 'Class', value: characterStats['class'] ?? '')),
               ],
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
 
             // Drive, Ancestry, Background fields
             Row(
@@ -70,7 +70,7 @@ class _CharacterSheetState extends State<CharacterSheet> {
                         label: 'Background', value: characterStats['background'] ?? '')),
               ],
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
 
             // Mission and Counterpart Name fields
             Row(
@@ -125,7 +125,7 @@ class _CharacterSheetState extends State<CharacterSheet> {
             _buildStatSection('Grit', 'Endure or hold steady.\nDefend or protect others.', 'Sick',
                 characterStats['grit'].toString()),
             TreasureList(hand: widget.hand, onUpdate: _updateTotalWeight),
-            SizedBox(height: 50.0)
+            const SizedBox(height: 50.0)
           ],
         ),
       ),
@@ -158,7 +158,7 @@ class _CharacterSheetState extends State<CharacterSheet> {
         TextField(
           style: Theme.of(context).textTheme.bodyMedium,
           controller: controller,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             // border: OutlineInputBorder(),
             // hintText: hintText,
             isDense: true,
@@ -212,10 +212,10 @@ class _CharacterSheetState extends State<CharacterSheet> {
             ),
             child: Center(
               child: Transform.translate(
-                offset: Offset(0, -5), // Move the text up by 3 pixels
+                offset: const Offset(0, -5), // Move the text up by 3 pixels
                 child: Text(
                   value,
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -225,8 +225,12 @@ class _CharacterSheetState extends State<CharacterSheet> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                Text(description),
+                Text(title,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium!
+                        .copyWith(fontWeight: FontWeight.bold)),
+                Text(description, style: Theme.of(context).textTheme.bodySmall),
                 // Row(
                 //   children: [
                 //     Checkbox(
@@ -275,13 +279,13 @@ class _CharacterSheetState extends State<CharacterSheet> {
             Positioned(
               top: -15, // Adjust this value to move the text up or down
               child: Text(value.toString(),
-                  style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold)),
+                  style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold)),
             ),
           ],
         ),
-        SizedBox(height: 8), // Add some space between the icon-value stack and the label
-        Text(label, style: TextStyle(fontSize: 16)),
-        SizedBox(height: 8), // Add some space between the label and the buttons
+        const SizedBox(height: 8), // Add some space between the icon-value stack and the label
+        Text(label, style: const TextStyle(fontSize: 16)),
+        const SizedBox(height: 8), // Add some space between the label and the buttons
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -296,14 +300,14 @@ class _CharacterSheetState extends State<CharacterSheet> {
                 ),
                 alignment: Alignment.center,
                 child: Transform.translate(
-                  offset: Offset(0, -5), // Move the text up by 3 pixels
-                  child: Text('-',
+                  offset: const Offset(0, -5), // Move the text up by 3 pixels
+                  child: const Text('-',
                       style: TextStyle(
                           color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                 ),
               ),
             ),
-            SizedBox(width: 8), // Add some space between the buttons
+            const SizedBox(width: 8), // Add some space between the buttons
             GestureDetector(
               onTap: () => _incrementStat(label),
               child: Container(
@@ -315,8 +319,8 @@ class _CharacterSheetState extends State<CharacterSheet> {
                 ),
                 alignment: Alignment.center,
                 child: Transform.translate(
-                  offset: Offset(0, -5), // Move the text up by 3 pixels
-                  child: Text('+',
+                  offset: const Offset(0, -5), // Move the text up by 3 pixels
+                  child: const Text('+',
                       style: TextStyle(
                           color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                 ),
@@ -347,7 +351,7 @@ class _CharacterSheetState extends State<CharacterSheet> {
                     top: -12,
                     left: 3,
                     child: Text(numerator.toString(),
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
                 Container(
                   width: 30,
                   height: 30,
@@ -359,21 +363,21 @@ class _CharacterSheetState extends State<CharacterSheet> {
                     top: 3,
                     left: 17,
                     child: Text(denominator.toString(),
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
               ],
             ),
           ],
         ),
-        SizedBox(height: 8), // Add some space between the icon-value stack and the label
-        Text(label, style: TextStyle(fontSize: 16)),
+        const SizedBox(height: 8), // Add some space between the icon-value stack and the label
+        Text(label, style: const TextStyle(fontSize: 16)),
         numerator > denominator
             ? Container(
                 height: 32,
-                child: Text(
+                child: const Text(
                   "Encumbered",
                   style: TextStyle(color: Colors.red),
                 ))
-            : SizedBox(height: 32)
+            : const SizedBox(height: 32)
       ],
     );
   }

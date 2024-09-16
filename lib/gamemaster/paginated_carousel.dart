@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../gamemaster/adventure_data.dart';
+import 'adventure_data.dart';
 
 class PaginatedCarousel extends StatefulWidget {
   final List<AdventureCard> cards;
@@ -31,6 +31,7 @@ class _PaginatedCarouselState extends State<PaginatedCarousel> {
   void initState() {
     super.initState();
     aspectRatio = originalCardWidth / originalCardHeight;
+    _pageController = PageController();
   }
 
   @override
@@ -47,21 +48,29 @@ class _PaginatedCarouselState extends State<PaginatedCarousel> {
     );
   }
 
+  void _flipCurrentCard() {
+    setState(() {
+      widget.cards[_currentPage].flip();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Focus(
+    return RawKeyboardListener(
+      focusNode: FocusNode(),
       autofocus: true,
-      onKey: (FocusNode node, RawKeyEvent event) {
+      onKey: (event) {
         if (event is RawKeyDownEvent) {
-          if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-            _goToPage((_currentPage + 1) % widget.cards.length);
-            return KeyEventResult.handled;
-          } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-            _goToPage((_currentPage - 1 + widget.cards.length) % widget.cards.length);
-            return KeyEventResult.handled;
+          if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+            _pageController.previousPage(
+                duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+          } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+            _pageController.nextPage(
+                duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
+          } else if (event.logicalKey == LogicalKeyboardKey.space) {
+            _flipCurrentCard();
           }
         }
-        return KeyEventResult.ignored;
       },
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -108,7 +117,10 @@ class _PaginatedCarouselState extends State<PaginatedCarousel> {
                             width: cardWidth,
                             height: cardHeight,
                             child: GestureDetector(
-                              onTap: () => widget.onCardTap(widget.cards[index]),
+                              onTap: () {
+                                _flipCurrentCard();
+                                // widget.onCardTap(widget.cards[index]);
+                              },
                               child: Card(
                                 elevation: isCenter ? 8 : 4,
                                 shape: RoundedRectangleBorder(

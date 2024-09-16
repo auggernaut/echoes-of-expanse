@@ -92,7 +92,6 @@ class CharacterCard {
       armor: json['armor'],
       coin: json['coin']);
 
-  @override
   void flip() {
     isFlipped = !isFlipped;
   }

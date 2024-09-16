@@ -55,8 +55,6 @@ class _AdventureCardLightboxState extends State<AdventureCardLightbox> {
                 _nextCard();
               } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
                 _previousCard();
-              } else if (event.logicalKey == LogicalKeyboardKey.escape) {
-                Navigator.of(context).pop();
               }
             }
           },

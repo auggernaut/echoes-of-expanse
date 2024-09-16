@@ -95,6 +95,11 @@ class MyApp extends StatelessWidget {
             fontWeight: FontWeight.normal,
             color: Colors.black,
           ),
+          bodySmall: GoogleFonts.texturina(
+            fontSize: 14.0,
+            fontWeight: FontWeight.normal,
+            color: Colors.black,
+          ),
           labelMedium: GoogleFonts.texturina(
             fontSize: 12.0,
             fontWeight: FontWeight.normal,
