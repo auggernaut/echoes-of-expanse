@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'character_data.dart'; // Assuming this file contains your Deck and CharacterCard models
-import 'cards_carousel.dart'; // Your existing CardsCarousel widget
+import 'cards_paginated_carousel.dart'; // Your existing CardsCarousel widget
 
 class CardSelectionScreen extends StatefulWidget {
   final List<CharacterCard> cards;
@@ -45,10 +45,9 @@ class _CardSelectionScreenState extends State<CardSelectionScreen> {
           children: [
             SizedBox(height: 20.0),
             Expanded(
-              child: CardsCarousel(
-                onCarouselChange: (index) => {},
+              child: CardsPaginatedCarousel(
+                onPageChanged: (index) => {},
                 cards: widget.cards,
-                cardTapBehavior: 'dim',
                 onCardTap: _toggleCardSelection,
               ),
             ),

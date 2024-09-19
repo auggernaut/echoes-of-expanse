@@ -21,7 +21,7 @@ void main() async {
 }
 
 Future<bool> checkForSavedData(Hand userHand) async {
-  await userHand.loadCards();
+  await userHand.loadCharacter();
   return userHand.selectedCards.isNotEmpty;
 }
 
@@ -145,10 +145,9 @@ Route<dynamic> _onGenerateRoute(RouteSettings settings, bool hasSavedData, Hand 
 
   if (settings.name!.startsWith('/gamemaster')) {
     // final roomId = settings.name!.substring('/gamemaster/'.length);
-    return MaterialPageRoute(builder: (context) => GameMasterView(roomId: '123'));
+    return MaterialPageRoute(builder: (context) => GameMasterView(roomId: '223'));
   }
 
   return MaterialPageRoute(
-      builder: (context) =>
-          hasSavedData ? GameScreen(hand: userHand, roomId: '123') : const IntroPage());
+      builder: (context) => hasSavedData ? GameScreen(hand: userHand) : const IntroPage());
 }

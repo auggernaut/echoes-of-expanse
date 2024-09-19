@@ -18,7 +18,7 @@ class _CharacterSheetState extends State<CharacterSheet> {
   @override
   void initState() {
     super.initState();
-    widget.hand.loadCards().then((stats) {
+    widget.hand.loadCharacter().then((stats) {
       setState(() {
         characterStats = stats;
       });

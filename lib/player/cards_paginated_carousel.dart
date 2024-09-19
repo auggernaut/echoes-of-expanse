@@ -1,44 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flip_card/flip_card.dart'; // Add this import
-import 'adventure_data.dart';
+import 'package:echoes_of_expanse/player/character_data.dart';
 
-class PaginatedCarousel extends StatefulWidget {
-  final List<AdventureCard> cards;
+class CardsPaginatedCarousel extends StatefulWidget {
+  final List<CharacterCard> cards;
   final Function(int) onPageChanged;
-  final Function(AdventureCard) onCardTap;
+  final Function(CharacterCard) onCardTap;
 
-  const PaginatedCarousel({
-    Key? key,
+  const CardsPaginatedCarousel({
+    super.key,
     required this.cards,
     required this.onPageChanged,
     required this.onCardTap,
-  }) : super(key: key);
+  });
 
   @override
-  _PaginatedCarouselState createState() => _PaginatedCarouselState();
+  CardsPaginatedCarouselState createState() => CardsPaginatedCarouselState();
 }
 
-class _PaginatedCarouselState extends State<PaginatedCarousel> {
+class CardsPaginatedCarouselState extends State<CardsPaginatedCarousel> {
   late PageController _pageController;
   int _currentPage = 0;
 
   // Original card dimensions and aspect ratio
-  final double originalCardWidth = 406.0;
-  final double originalCardHeight = 716.0;
+  final double originalCardWidth = 748.0;
+  final double originalCardHeight = 1044.0;
   late final double aspectRatio;
 
-  List<GlobalKey<FlipCardState>> cardKeys = [];
+  Set<int> _borderedCards = {};
 
   @override
   void initState() {
     super.initState();
     aspectRatio = originalCardWidth / originalCardHeight;
     _pageController = PageController();
-    cardKeys = List.generate(
-      widget.cards.length,
-      (_) => GlobalKey<FlipCardState>(),
-    );
   }
 
   @override
@@ -56,8 +51,24 @@ class _PaginatedCarouselState extends State<PaginatedCarousel> {
   }
 
   void _flipCurrentCard() {
-    cardKeys[_currentPage].currentState?.toggleCard();
-    widget.onCardTap(widget.cards[_currentPage]);
+    setState(() {
+      widget.cards[_currentPage].flip();
+    });
+  }
+
+  void _toggleBorder(int index) {
+    setState(() {
+      if (_borderedCards.contains(index)) {
+        _borderedCards.remove(index);
+      } else {
+        _borderedCards.add(index);
+      }
+    });
+
+    // Add a short delay before calling onCardTap
+    Future.delayed(Duration(milliseconds: 500), () {
+      widget.onCardTap(widget.cards[index]);
+    });
   }
 
   @override
@@ -74,7 +85,7 @@ class _PaginatedCarouselState extends State<PaginatedCarousel> {
             _pageController.nextPage(
                 duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
           } else if (event.logicalKey == LogicalKeyboardKey.space) {
-            _flipCurrentCard();
+            _toggleBorder(_currentPage);
           }
         }
       },
@@ -119,44 +130,47 @@ class _PaginatedCarouselState extends State<PaginatedCarousel> {
                       return Transform.scale(
                         scale: value,
                         child: Center(
-                          child: SizedBox(
+                          child: Container(
                             width: cardWidth,
                             height: cardHeight,
-                            child: FlipCard(
-                              key: cardKeys[index],
-                              onFlip: () => widget.onCardTap(widget.cards[index]),
-                              direction: FlipDirection.HORIZONTAL,
-                              side: CardSide.FRONT,
-                              front: Card(
-                                elevation: isCenter ? 8 : 4,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
-                                    image: DecorationImage(
-                                      image: AssetImage(widget.cards[index].frontAsset),
-                                      fit: BoxFit.cover,
+                            child: Stack(
+                              children: [
+                                Positioned.fill(
+                                  child: Card(
+                                    elevation: isCenter ? 8 : 4,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(16),
+                                        image: DecorationImage(
+                                          image: AssetImage(widget.cards[index].frontAsset),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              back: Card(
-                                elevation: isCenter ? 8 : 4,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(16),
-                                    image: DecorationImage(
-                                      image: AssetImage(widget.cards[index].backAsset),
-                                      fit: BoxFit.cover,
+                                if (_borderedCards.contains(index))
+                                  Positioned.fill(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: Colors.green, width: 2),
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                    ),
+                                  ),
+                                Positioned.fill(
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(16),
+                                      onTap: () => _toggleBorder(index),
                                     ),
                                   ),
                                 ),
-                              ),
+                              ],
                             ),
                           ),
                         ),

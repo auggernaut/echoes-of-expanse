@@ -4,6 +4,7 @@ import 'package:echoes_of_expanse/gamemaster/adventure_card_lightbox.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'adventure_data.dart';
+import 'package:flutter/gestures.dart';
 
 class SceneArea extends StatefulWidget {
   final String roomId;
@@ -18,6 +19,7 @@ class _SceneAreaState extends State<SceneArea> {
   List<AdventureCard> sceneCards = [];
   late Stream<QuerySnapshot> sceneStream;
   StreamSubscription<QuerySnapshot>? _streamSubscription;
+  Offset _sceneOffset = Offset.zero;
 
   @override
   void initState() {
@@ -70,12 +72,26 @@ class _SceneAreaState extends State<SceneArea> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.grey[200],
-      child: Stack(
-        children: sceneCards.map((card) => _buildDraggableCard(card)).toList(),
+    return GestureDetector(
+      onPanUpdate: _handlePanUpdate,
+      child: ClipRect(
+        child: Container(
+          color: Colors.grey[200],
+          child: Transform.translate(
+            offset: _sceneOffset,
+            child: Stack(
+              children: sceneCards.map((card) => _buildDraggableCard(card)).toList(),
+            ),
+          ),
+        ),
       ),
     );
+  }
+
+  void _handlePanUpdate(DragUpdateDetails details) {
+    setState(() {
+      _sceneOffset += details.delta;
+    });
   }
 
   Widget _buildDraggableCard(AdventureCard card) {
@@ -91,7 +107,7 @@ class _SceneAreaState extends State<SceneArea> {
         ),
         onDragEnd: (details) {
           final RenderBox renderBox = context.findRenderObject() as RenderBox;
-          final localPosition = renderBox.globalToLocal(details.offset);
+          final localPosition = renderBox.globalToLocal(details.offset) - _sceneOffset;
           _updateCardPosition(card, localPosition);
         },
         child: _buildCardWidget(card),
@@ -102,9 +118,14 @@ class _SceneAreaState extends State<SceneArea> {
   Widget _buildCardWidget(AdventureCard card) {
     double width = 100;
     double height = 70;
+    BorderRadius borderRadius = BorderRadius.circular(10);
+
     if (card.type.toLowerCase() == 'location') {
       width = 150;
       height = 105;
+    } else if (card.type.toLowerCase() == 'class') {
+      width = height = 75; // Make it square for circular clipping
+      borderRadius = BorderRadius.circular(50); // Full circle
     }
 
     return MouseRegion(
@@ -116,15 +137,15 @@ class _SceneAreaState extends State<SceneArea> {
               width: width,
               height: height,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: borderRadius,
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: borderRadius,
                 child: Image.asset(
                   card.isFlipped ? card.backAsset : card.frontAsset,
                   fit: BoxFit.cover,
                   width: width,
-                  height: height * 2,
+                  height: card.type.toLowerCase() == 'class' ? height : height * 2,
                   alignment: Alignment.topCenter,
                 ),
               ),

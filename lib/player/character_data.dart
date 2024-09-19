@@ -135,6 +135,7 @@ class Deck {
 }
 
 class Hand {
+  String? id;
   final List<CharacterCard> selectedCards = [];
   final List<TreasureItem> treasureItems = [];
   Map<String, dynamic> characterStats = {
@@ -151,7 +152,8 @@ class Hand {
     'charm': 0,
     'grit': 0,
     'armor': 0,
-    'coin': 0
+    'coin': 0,
+    'roomCode': '', // Add this line
   };
 
   // Method to add a card to the hand
@@ -223,8 +225,12 @@ class Hand {
   }
 
   // Method to load cards and stats from localStorage
-  Future<Map<String, dynamic>> loadCards() async {
+  Future<Map<String, dynamic>> loadCharacter() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Load the id
+    id = prefs.getString('handId');
+
     String? cardsJson = prefs.getString('selectedCards');
     if (cardsJson != null) {
       List<dynamic> cardsList = jsonDecode(cardsJson);
@@ -240,6 +246,7 @@ class Hand {
     }
 
     return characterStats = {
+      'id': id,
       'characterName': prefs.getString('characterName') ?? '',
       'health': prefs.getInt('health') ?? 0,
       'maxWeight': prefs.getInt('maxWeight') ?? 0,
@@ -256,6 +263,7 @@ class Hand {
       'grit': prefs.getInt('grit') ?? 0,
       'armor': prefs.getInt('armor') ?? 0,
       'coin': prefs.getInt('coin') ?? 0,
+      'roomCode': prefs.getString('roomCode') ?? '', // Add this line
     };
   }
 
@@ -274,6 +282,12 @@ class Hand {
   // Method to save cards, treasure items, and stats to localStorage
   Future<void> _saveToLocalStorage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Save the id
+    if (id != null) {
+      await prefs.setString('handId', id!);
+    }
+
     String cardsJson = jsonEncode(selectedCards.map((card) => card.toJson()).toList());
     await prefs.setString('selectedCards', cardsJson);
 
@@ -291,14 +305,23 @@ class Hand {
 
   // Method to clear the hand, stats, and localStorage
   Future<void> clearHand() async {
+    id = null;
     selectedCards.clear();
     treasureItems.clear();
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('handId');
     await prefs.remove('selectedCards');
     await prefs.remove('treasureItems');
+    await prefs.remove('roomCode'); // Add this line
     for (var key in characterStats.keys) {
       await prefs.remove(key);
     }
+  }
+
+  // New method to set the id
+  void setId(String newId) {
+    id = newId;
+    _saveToLocalStorage();
   }
 }
 
