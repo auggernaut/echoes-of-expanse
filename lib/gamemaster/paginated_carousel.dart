@@ -108,6 +108,11 @@ class _PaginatedCarouselState extends State<PaginatedCarousel> {
                   widget.onPageChanged(index);
                 },
                 itemBuilder: (context, index) {
+                  // Add this check to ensure we don't access out-of-range indices
+                  if (index >= widget.cards.length) {
+                    return SizedBox.shrink(); // Return an empty widget if index is out of range
+                  }
+
                   bool isCenter = index == _currentPage;
                   double scale = isCenter ? 1.0 : 0.8;
 
@@ -123,7 +128,7 @@ class _PaginatedCarouselState extends State<PaginatedCarousel> {
                             width: cardWidth,
                             height: cardHeight,
                             child: FlipCard(
-                              key: cardKeys[index],
+                              key: ValueKey('card_$index'),
                               onFlip: () => widget.onCardTap(widget.cards[index]),
                               direction: FlipDirection.HORIZONTAL,
                               side: CardSide.FRONT,

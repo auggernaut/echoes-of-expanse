@@ -66,9 +66,9 @@ class CardsPaginatedCarouselState extends State<CardsPaginatedCarousel> {
     });
 
     // Add a short delay before calling onCardTap
-    Future.delayed(Duration(milliseconds: 500), () {
-      widget.onCardTap(widget.cards[index]);
-    });
+    // Future.delayed(Duration(milliseconds: 500), () {
+    widget.onCardTap(widget.cards[index]);
+    // });
   }
 
   @override

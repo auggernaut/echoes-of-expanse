@@ -7,6 +7,7 @@ import 'intro_page.dart';
 import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,8 +17,9 @@ void main() async {
   setUrlStrategy(PathUrlStrategy());
   Hand userHand = Hand();
   bool hasSavedData = await checkForSavedData(userHand);
+  String? storedRoomId = await _getStoredRoomId();
 
-  runApp(MyApp(hasSavedData: hasSavedData, userHand: userHand));
+  runApp(MyApp(hasSavedData: hasSavedData, userHand: userHand, storedRoomId: storedRoomId));
 }
 
 Future<bool> checkForSavedData(Hand userHand) async {
@@ -28,13 +30,15 @@ Future<bool> checkForSavedData(Hand userHand) async {
 class MyApp extends StatelessWidget {
   final bool hasSavedData;
   final Hand userHand;
+  final String? storedRoomId;
 
-  MyApp({required this.hasSavedData, required this.userHand});
+  MyApp({required this.hasSavedData, required this.userHand, required this.storedRoomId});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      onGenerateRoute: (settings) => _onGenerateRoute(settings, hasSavedData, userHand),
+      onGenerateRoute: (settings) =>
+          _onGenerateRoute(settings, hasSavedData, userHand, storedRoomId),
       theme: ThemeData(
         primaryColor: Colors.black,
         scaffoldBackgroundColor: Colors.white,
@@ -130,24 +134,22 @@ class MyApp extends StatelessWidget {
   }
 }
 
-Route<dynamic> _onGenerateRoute(RouteSettings settings, bool hasSavedData, Hand userHand) {
-  // if (settings.name!.startsWith('/game/')) {
-  //   final gameId = settings.name!.substring('/game/'.length);
-  //   // Set the global gameId variable here
-  //   Global.setGameId(gameId);
-
-  //   // Navigate to the appropriate screen
-  //   return MaterialPageRoute(builder: (context) => PlayPage(gameId));
-  // }
-
-  // Default route (e.g., home)
+Route<dynamic> _onGenerateRoute(
+    RouteSettings settings, bool hasSavedData, Hand userHand, String? storedRoomId) {
   print(settings.name);
 
   if (settings.name!.startsWith('/gamemaster')) {
-    // final roomId = settings.name!.substring('/gamemaster/'.length);
-    return MaterialPageRoute(builder: (context) => GameMasterView(roomId: '223'));
+    return MaterialPageRoute(
+      builder: (context) => GameMasterView(roomId: storedRoomId),
+    );
   }
 
   return MaterialPageRoute(
-      builder: (context) => hasSavedData ? GameScreen(hand: userHand) : const IntroPage());
+    builder: (context) => hasSavedData ? GameScreen(hand: userHand) : const IntroPage(),
+  );
+}
+
+Future<String?> _getStoredRoomId() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString('gamemasterRoomId');
 }

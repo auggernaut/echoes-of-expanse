@@ -73,7 +73,18 @@ class _LightboxState extends State<Lightbox> {
                     Container(
                       width: cardWidth,
                       height: cardHeight,
-                      child: Image.asset(card.frontAsset, fit: BoxFit.contain),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.black,
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: ClipRRect(
+                        borderRadius:
+                            BorderRadius.circular(18), // Slightly smaller to account for border
+                        child: Image.asset(card.frontAsset, fit: BoxFit.contain),
+                      ),
                     ),
                     SizedBox(height: 16),
                     Text(

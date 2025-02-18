@@ -4,6 +4,7 @@ import 'package:echoes_of_expanse/player/character_data.dart'; // Ensure this co
 import 'package:echoes_of_expanse/player/deck_selection_screen.dart';
 import 'package:echoes_of_expanse/player/game_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:echoes_of_expanse/player/section_card_selection_screen.dart'; // New import
 
 class CharacterCreationManager extends StatefulWidget {
   @override
@@ -55,14 +56,30 @@ class _CharacterCreationManagerState extends State<CharacterCreationManager> {
         maxCards: 1,
         onSubmit: _selectDrive,
       ),
-      MasonryGridScreen(cards: selectedDeck.cards, onSubmit: _selectSkills),
-      // CardSelectionScreen(
-      //   key: UniqueKey(),
-      //   cards: selectedDeck.cards.where((card) => card.type == 'skill').toList(),
-      //   maxCards: 4,
-      //   onSubmit: _selectSkills,
-      // ),
-      // You'll create similar selection screens for background, ancestry, and bond
+      SectionCardSelectionScreen(
+        key: UniqueKey(),
+        title: instructions,
+        selectedCards: [],
+        sections: [
+          CardSection(
+            title: 'Recommended',
+            cards: selectedDeck.cards.where((card) => card.type == 'recommended').toList(),
+            color: Colors.lightBlue.withOpacity(0.2),
+          ),
+          CardSection(
+            title: 'Equipment',
+            cards: selectedDeck.cards.where((card) => card.type == 'equipment').toList(),
+            color: Colors.lightGreen.withOpacity(0.2),
+          ),
+          CardSection(
+            title: 'Skills',
+            cards: selectedDeck.cards.where((card) => card.type == 'skill').toList(),
+            color: Colors.amber.withOpacity(0.2),
+          ),
+        ],
+        maxCoins: 10,
+        onSubmit: _selectSkills,
+      ),
     ];
 
     return Container(
@@ -108,7 +125,7 @@ class _CharacterCreationManagerState extends State<CharacterCreationManager> {
   void _selectDrive(List<CharacterCard> cards) {
     setState(() {
       selectedDrive = cards[0];
-      instructions = "Pick 4 more cards...";
+      instructions = "Pick more cards...";
       userHand.addCard(selectedDrive);
     });
     _goNext();

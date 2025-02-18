@@ -323,6 +323,8 @@ class Hand {
     id = newId;
     _saveToLocalStorage();
   }
+
+  int get coins => (characterStats['coin'] ?? 0).toInt();
 }
 
 List<Deck> decks = [

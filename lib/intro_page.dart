@@ -10,26 +10,44 @@ class IntroPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
-        return SingleChildScrollView(
-            child: Center(
+        return Stack(
+          children: [
+            SingleChildScrollView(
+              child: Center(
                 // Wrap Column with Center
                 child: ConstrainedBox(
-          // Apply ConstrainedBox here
-          constraints: BoxConstraints(maxWidth: 1000), // Set maxWidth to 1000 for all content
+                  // Apply ConstrainedBox here
+                  constraints:
+                      BoxConstraints(maxWidth: 1000), // Set maxWidth to 1000 for all content
 
-          child: Column(
-            children: [
-              titleSection(context, constraints),
-              SizedBox(height: 100),
-              whatIsThisSection(context, constraints),
-              whereDidThisComeFromSection(context),
-              howIsThisDifferent(context),
-              whatsNext(context),
-              getStartedSection(context),
-              SizedBox(height: 100),
-            ],
-          ),
-        )));
+                  child: Column(
+                    children: [
+                      titleSection(context, constraints),
+                      SizedBox(height: 100),
+                      whatIsThisSection(context, constraints),
+                      whereDidThisComeFromSection(context),
+                      howIsThisDifferent(context),
+                      whatsNext(context),
+                      getStartedSection(context),
+                      SizedBox(height: 100),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 16,
+              bottom: 16,
+              child: IconButton(
+                icon: Icon(Icons.computer, color: Colors.blue),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/gamemaster');
+                },
+                tooltip: 'Gamemaster Mode',
+              ),
+            ),
+          ],
+        );
       },
     );
   }
@@ -48,7 +66,7 @@ class IntroPage extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 16.0, right: 16.0, left: 16.0),
       child: Text(
         // "Dive into an epic tabletop roleplay adventure where fast, easy setup meets rich character development. Whether you're a newcomer or an experienced player, this game is designed to get you started quickly while offering a deep, narrative-driven experience.",
-        "The tabletop roleplay game without all the fuss...",
+        "The tabletop roleplay game without all the fuss.",
         // "Build an epic character in 5 minutes.",
         textAlign: isDesktopLayout ? TextAlign.left : TextAlign.center,
         style: Theme.of(context).textTheme.bodyLarge,
@@ -221,7 +239,7 @@ class IntroPage extends StatelessWidget {
           Text(
             "Echoes of Expanse is a creation of Augustin Bralley, 2024. " +
                 "Licensed under the Creative Commons Attribution-ShareAlike 3.0 United States (CC BY-SA 3.0 US). " +
-                "Echoes of Expanse is based on Homebrew World, which was built for Dungeon World, and is Powered by the Apocalypse.",
+                "Echoes of Expanse is based on Homebrew World, a mod of Dungeon World, which is Powered by the Apocalypse.",
             style: Theme.of(context).textTheme.bodyMedium,
           )
         ]));
