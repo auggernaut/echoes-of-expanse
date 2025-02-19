@@ -22,10 +22,9 @@ class _GameMasterViewState extends State<GameMasterView> with TickerProviderStat
   String selectedDeck = 'Threats';
   List<AdventureCard> currentDeck = [];
   int currentCardIndex = 0;
+  bool _showGuide = false;
 
   late TabController _bottomTabController;
-  int _currentBottomTab = 0;
-
   String? _roomId;
   bool _isSceneLoaded = false;
   bool _isCheckingScene = true;
@@ -36,7 +35,6 @@ class _GameMasterViewState extends State<GameMasterView> with TickerProviderStat
     _tabController = TabController(length: _cardTypes.length, vsync: this);
     _tabController.addListener(_handleTabSelection);
     _bottomTabController = TabController(length: 3, vsync: this);
-    _bottomTabController.addListener(_handleBottomTabSelection);
     currentDeck = _getDeckForType(selectedDeck);
     _initializeRoom();
   }
@@ -181,14 +179,6 @@ class _GameMasterViewState extends State<GameMasterView> with TickerProviderStat
     }
   }
 
-  void _handleBottomTabSelection() {
-    if (_bottomTabController.indexIsChanging) {
-      setState(() {
-        _currentBottomTab = _bottomTabController.index;
-      });
-    }
-  }
-
   List<AdventureCard> _getDeckForType(String type) {
     switch (type) {
       case 'Threats':
@@ -288,9 +278,11 @@ class _GameMasterViewState extends State<GameMasterView> with TickerProviderStat
         title: Text('Halls of the Blood King'),
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: Icon(Icons.chat),
             onPressed: () {
-              _initializeRoom();
+              setState(() {
+                _showGuide = !_showGuide;
+              });
             },
           ),
         ],
@@ -324,12 +316,22 @@ class _GameMasterViewState extends State<GameMasterView> with TickerProviderStat
       children: [
         _buildLeaveRoomButton(),
         Expanded(
-          child: TabBarView(
-            controller: _bottomTabController,
+          child: Stack(
             children: [
-              SceneArea(roomId: _roomId!),
-              _buildCardBrowsingArea(),
-              GameGuide(),
+              TabBarView(
+                controller: _bottomTabController,
+                children: [
+                  SceneArea(roomId: _roomId!),
+                  _buildCardBrowsingArea(),
+                ],
+              ),
+              if (_showGuide)
+                Positioned.fill(
+                  child: Material(
+                    elevation: 8,
+                    child: GameGuide(),
+                  ),
+                ),
             ],
           ),
         ),
@@ -338,7 +340,6 @@ class _GameMasterViewState extends State<GameMasterView> with TickerProviderStat
           tabs: [
             Tab(text: 'Scene'),
             Tab(text: 'Cards'),
-            Tab(text: 'Guide'),
           ],
         ),
       ],
@@ -364,9 +365,28 @@ class _GameMasterViewState extends State<GameMasterView> with TickerProviderStat
                 flex: 2,
                 child: _buildCardBrowsingArea(),
               ),
-              Expanded(
-                flex: 1,
-                child: GameGuide(),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                width: _showGuide ? 400 : 0,
+                child: OverflowBox(
+                  minWidth: 0,
+                  maxWidth: 400,
+                  child: _showGuide
+                      ? Container(
+                          width: 400,
+                          decoration: BoxDecoration(
+                            border: Border(
+                              left: BorderSide(
+                                color: Colors.grey.shade300,
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: GameGuide(),
+                        )
+                      : null,
+                ),
               ),
             ],
           ),
