@@ -23,6 +23,7 @@ class _GameMasterViewState extends State<GameMasterView> with TickerProviderStat
   List<AdventureCard> currentDeck = [];
   int currentCardIndex = 0;
   bool _showGuide = false;
+  double _scenePaneWidth = 300.0; // Initial width of the Scene pane
 
   late TabController _bottomTabController;
   String? _roomId;
@@ -352,8 +353,9 @@ class _GameMasterViewState extends State<GameMasterView> with TickerProviderStat
         Expanded(
           child: Row(
             children: [
-              Expanded(
-                flex: 1,
+              // Scene pane
+              SizedBox(
+                width: _scenePaneWidth,
                 child: Column(
                   children: [
                     _buildLeaveRoomButton(),
@@ -361,10 +363,36 @@ class _GameMasterViewState extends State<GameMasterView> with TickerProviderStat
                   ],
                 ),
               ),
+              // Draggable divider
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onHorizontalDragUpdate: (details) {
+                  setState(() {
+                    _scenePaneWidth += details.delta.dx;
+                    // Ensure the Scene pane doesn't get too small or too large
+                    _scenePaneWidth =
+                        _scenePaneWidth.clamp(200.0, MediaQuery.of(context).size.width - 400.0);
+                  });
+                },
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.resizeColumn,
+                  child: Container(
+                    width: 8,
+                    color: Colors.grey.withOpacity(0.2),
+                    child: Center(
+                      child: Container(
+                        width: 2,
+                        color: Colors.grey.shade400,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // Deck pane
               Expanded(
-                flex: 2,
                 child: _buildCardBrowsingArea(),
               ),
+              // Guide pane
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
