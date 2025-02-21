@@ -237,14 +237,19 @@ class _GameScreenState extends State<GameScreen> {
           }
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showDiceRoller(context),
-        child: Image.asset(
-          'assets/images/d6.png', // Ensure you have a dice image asset
-          height: 40,
-          width: 40,
+      floatingActionButton: Positioned(
+        left: 16,
+        bottom: 16,
+        child: FloatingActionButton(
+          onPressed: () => _showDiceRoller(context),
+          child: Image.asset(
+            'assets/images/d6.png',
+            height: 40,
+            width: 40,
+          ),
         ),
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
     );
   }
 
@@ -322,7 +327,7 @@ class _GameScreenState extends State<GameScreen> {
                         SizedBox(height: 15.0),
                         Text("Basic Move", style: Theme.of(context).textTheme.headlineMedium),
                         Text(
-                            "When you try something that is dangerous or difficult, check to see if another moves applies, if not determine what stat (Power, Smarts, Charm, or Grit) the move requires and roll 2d6 then add that stat’s modifier to the roll. On a 10+, you pull it off as well as one could hope; on a 7-9, you can do it, but at a lesser success, a cost, or a consequence; on a 6- it goes terribly wrong, collect 1 Coin.",
+                            "When you try something that is dangerous or difficult, check to see if another moves applies, if not determine what stat (Power, Smarts, Charm, or Grit) the move requires and roll 2d6 then add that stat's modifier to the roll. On a 10+, you pull it off as well as one could hope; on a 7-9, you can do it, but at a lesser success, a cost, or a consequence; on a 6-, it goes terribly wrong, collect 1 Coin.",
                             style: Theme.of(context).textTheme.bodyMedium),
                         SizedBox(height: 15.0),
                         Text("Taking Damage", style: Theme.of(context).textTheme.headlineMedium),
@@ -332,18 +337,18 @@ class _GameScreenState extends State<GameScreen> {
                         SizedBox(height: 15.0),
                         Text("Aid an Ally", style: Theme.of(context).textTheme.headlineMedium),
                         Text(
-                            "When you help another character who’s about to roll, they gain advantage but you are exposed to any risks, costs, or consequences.",
+                            "When you help another character who's about to roll, they gain advantage but you are exposed to any risks, costs, or consequences.",
                             style: Theme.of(context).textTheme.bodyMedium),
                         SizedBox(height: 15.0),
                         Text("Advantage/Disadvatage",
                             style: Theme.of(context).textTheme.headlineMedium),
                         Text(
-                            "When a move says to roll “with advantage” roll an extra die and discard the lowest result. For disadvantage, roll an extra die and discard the highest.",
+                            "When a move says to roll \"with advantage\" roll an extra die and discard the lowest result. For disadvantage, roll an extra die and discard the highest.",
                             style: Theme.of(context).textTheme.bodyMedium),
                         SizedBox(height: 15.0),
                         Text("Last Breath", style: Theme.of(context).textTheme.headlineMedium),
                         Text(
-                            "When you are dying, you catch a glimpse of what lies beyond the Black Gates of Death (describe it). Then roll +nothing, on a 10+, you’ve cheated death—you’re no longer dying but you’re still in a bad place; on a 7-9, Death will offer you a bargain—take it and stabilize or refuse and pass beyond the Black Gates into whatever fate awaits you; on a 6-, your fate is sealed. You’re marked as Death’s own and you’ll cross the threshold soon. The GM will tell you when.",
+                            "When you are dying, you catch a glimpse of what lies beyond the Black Gates of Death (describe it). Then roll +nothing, on a 10+, you've cheated death—you're no longer dying but you're still in a bad place; on a 7-9, Death will offer you a bargain—take it and stabilize or refuse and pass beyond the Black Gates into whatever fate awaits you; on a 6-, your fate is sealed. You're marked as Death's own and you'll cross the threshold soon. The GM will tell you when.",
                             style: Theme.of(context).textTheme.bodyMedium),
                         SizedBox(height: 15.0),
                         Text("Leveling Up", style: Theme.of(context).textTheme.headlineMedium),

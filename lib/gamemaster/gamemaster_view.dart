@@ -18,11 +18,11 @@ class GameMasterView extends StatefulWidget {
 
 class _GameMasterViewState extends State<GameMasterView> with TickerProviderStateMixin {
   late TabController _tabController;
-  final List<String> _cardTypes = ['Threats', 'Items', 'Characters', 'Locations', 'Hooks'];
-  String selectedDeck = 'Threats';
+  final List<String> _cardTypes = ['Hooks', 'Threats', 'Items', 'Characters', 'Locations'];
+  String selectedDeck = 'Hooks';
   List<AdventureCard> currentDeck = [];
   int currentCardIndex = 0;
-  bool _showGuide = false;
+  bool _showGuide = true;
   double _scenePaneWidth = 300.0; // Initial width of the Scene pane
 
   late TabController _bottomTabController;

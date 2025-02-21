@@ -356,7 +356,8 @@ List<Deck> decks = [
         type: 'skill',
         frontAsset: 'assets/images/wizard_arcane_ward.png',
         backAsset: 'assets/images/wizard_class_back.png',
-        coin: 2),
+        coin: 2,
+        armor: 2),
     CharacterCard(
         name: 'wizard_amulet',
         description: 'Amulet of Aegis',

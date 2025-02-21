@@ -22,6 +22,7 @@ class PaginatedCarousel extends StatefulWidget {
 class _PaginatedCarouselState extends State<PaginatedCarousel> {
   late PageController _pageController;
   int _currentPage = 0;
+  final FocusNode _focusNode = FocusNode();
 
   // Original card dimensions and aspect ratio
   final double originalCardWidth = 406.0;
@@ -34,168 +35,194 @@ class _PaginatedCarouselState extends State<PaginatedCarousel> {
   void initState() {
     super.initState();
     aspectRatio = originalCardWidth / originalCardHeight;
-    _pageController = PageController();
+    _pageController = PageController(viewportFraction: 0.4);
     cardKeys = List.generate(
       widget.cards.length,
       (_) => GlobalKey<FlipCardState>(),
     );
+    _focusNode.requestFocus();
+  }
+
+  @override
+  void didUpdateWidget(PaginatedCarousel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.cards.length != oldWidget.cards.length) {
+      cardKeys = List.generate(
+        widget.cards.length,
+        (_) => GlobalKey<FlipCardState>(),
+      );
+    }
   }
 
   @override
   void dispose() {
     _pageController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
   void _goToPage(int page) {
-    _pageController.animateToPage(
-      page,
-      duration: Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
+    if (page >= 0 && page < widget.cards.length) {
+      _pageController.animateToPage(
+        page,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   void _flipCurrentCard() {
-    cardKeys[_currentPage].currentState?.toggleCard();
-    widget.onCardTap(widget.cards[_currentPage]);
+    print('Attempting to flip card at index: $_currentPage'); // Debug print
+    if (_currentPage >= 0 && _currentPage < cardKeys.length) {
+      print('Card keys length: ${cardKeys.length}'); // Debug print
+      print('Current card key: ${cardKeys[_currentPage]}'); // Debug print
+      cardKeys[_currentPage].currentState?.toggleCard();
+      widget.onCardTap(widget.cards[_currentPage]);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return RawKeyboardListener(
-      focusNode: FocusNode(),
+      focusNode: _focusNode,
       autofocus: true,
-      onKey: (event) {
+      onKey: (RawKeyEvent event) {
+        print('Key event received: ${event.logicalKey.keyLabel}'); // Debug print
         if (event is RawKeyDownEvent) {
-          if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+          print('KeyDown event: ${event.logicalKey.keyLabel}'); // Debug print
+          if (event.logicalKey == LogicalKeyboardKey.space) {
+            print('Space bar pressed!'); // Debug print
+            _flipCurrentCard();
+          } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
             _pageController.previousPage(
                 duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
           } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
             _pageController.nextPage(
                 duration: Duration(milliseconds: 300), curve: Curves.easeInOut);
-          } else if (event.logicalKey == LogicalKeyboardKey.space) {
-            _flipCurrentCard();
           }
         }
       },
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          // Fixed card height (adjust this value as needed)
-          double cardHeight = constraints.maxHeight * 0.8;
-          double cardWidth = cardHeight * aspectRatio;
+      child: GestureDetector(
+        onTap: () {
+          print('Tap detected!'); // Debug print
+          _flipCurrentCard();
+        },
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            double cardHeight = constraints.maxHeight * 0.8;
+            double cardWidth = cardHeight * aspectRatio;
 
-          // Ensure card width doesn't exceed screen width
-          if (cardWidth > constraints.maxWidth * 0.8) {
-            cardWidth = constraints.maxWidth * 0.8;
-            cardHeight = cardWidth / aspectRatio;
-          }
+            if (cardWidth > constraints.maxWidth * 0.8) {
+              cardWidth = constraints.maxWidth * 0.8;
+              cardHeight = cardWidth / aspectRatio;
+            }
 
-          final viewportFraction = cardWidth / constraints.maxWidth;
-          _pageController = PageController(
-            viewportFraction: viewportFraction,
-            initialPage: _currentPage,
-          );
+            final viewportFraction = cardWidth / constraints.maxWidth;
 
-          return Stack(
-            children: [
-              PageView.builder(
-                controller: _pageController,
-                itemCount: widget.cards.length,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
-                  widget.onPageChanged(index);
-                },
-                itemBuilder: (context, index) {
-                  // Add this check to ensure we don't access out-of-range indices
-                  if (index >= widget.cards.length) {
-                    return SizedBox.shrink(); // Return an empty widget if index is out of range
-                  }
+            _pageController =
+                PageController(viewportFraction: viewportFraction); // Use calculated fraction
 
-                  bool isCenter = index == _currentPage;
-                  double scale = isCenter ? 1.0 : 0.8;
+            return Stack(
+              children: [
+                PageView.builder(
+                  controller: _pageController,
+                  itemCount: widget.cards.length,
+                  // viewportFraction: 0.85,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentPage = index;
+                    });
+                    widget.onPageChanged(index);
+                  },
+                  itemBuilder: (context, index) {
+                    if (index >= widget.cards.length) {
+                      return SizedBox.shrink();
+                    }
 
-                  return TweenAnimationBuilder(
-                    tween: Tween<double>(begin: scale, end: scale),
-                    duration: Duration(milliseconds: 300),
-                    curve: Curves.easeInOutCubic,
-                    builder: (context, double value, child) {
-                      return Transform.scale(
-                        scale: value,
-                        child: Center(
-                          child: SizedBox(
-                            width: cardWidth,
-                            height: cardHeight,
-                            child: FlipCard(
-                              key: ValueKey('card_$index'),
-                              onFlip: () => widget.onCardTap(widget.cards[index]),
-                              direction: FlipDirection.HORIZONTAL,
-                              side: CardSide.FRONT,
-                              front: Card(
-                                elevation: isCenter ? 8 : 4,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Container(
-                                  decoration: BoxDecoration(
+                    bool isCenter = index == _currentPage;
+                    double scale = isCenter ? 1.0 : 0.8;
+
+                    return TweenAnimationBuilder(
+                      tween: Tween<double>(begin: scale, end: scale),
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.easeInOutCubic,
+                      builder: (context, double value, child) {
+                        return Transform.scale(
+                          scale: value,
+                          child: Center(
+                            child: SizedBox(
+                              width: cardWidth,
+                              height: cardHeight,
+                              child: FlipCard(
+                                key: cardKeys[index],
+                                onFlip: () => widget.onCardTap(widget.cards[index]),
+                                direction: FlipDirection.HORIZONTAL,
+                                side: CardSide.FRONT,
+                                front: Card(
+                                  elevation: isCenter ? 8 : 4,
+                                  shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
-                                    image: DecorationImage(
-                                      image: AssetImage(widget.cards[index].frontAsset),
-                                      fit: BoxFit.cover,
+                                  ),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      image: DecorationImage(
+                                        image: AssetImage(widget.cards[index].frontAsset),
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              back: Card(
-                                elevation: isCenter ? 8 : 4,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Container(
-                                  decoration: BoxDecoration(
+                                back: Card(
+                                  elevation: isCenter ? 8 : 4,
+                                  shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
-                                    image: DecorationImage(
-                                      image: AssetImage(widget.cards[index].backAsset),
-                                      fit: BoxFit.cover,
+                                  ),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      image: DecorationImage(
+                                        image: AssetImage(widget.cards[index].backAsset),
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
-              Positioned(
-                left: 10,
-                top: 0,
-                bottom: 0,
-                child: Center(
-                  child: IconButton(
-                    icon: Icon(Icons.arrow_back_ios),
-                    onPressed: () =>
-                        _goToPage((_currentPage - 1 + widget.cards.length) % widget.cards.length),
+                        );
+                      },
+                    );
+                  },
+                ),
+                Positioned(
+                  left: 10,
+                  top: 0,
+                  bottom: 0,
+                  child: Center(
+                    child: IconButton(
+                      icon: Icon(Icons.arrow_back_ios),
+                      onPressed: () =>
+                          _goToPage((_currentPage - 1 + widget.cards.length) % widget.cards.length),
+                    ),
                   ),
                 ),
-              ),
-              Positioned(
-                right: 10,
-                top: 0,
-                bottom: 0,
-                child: Center(
-                  child: IconButton(
-                    icon: Icon(Icons.arrow_forward_ios),
-                    onPressed: () => _goToPage((_currentPage + 1) % widget.cards.length),
+                Positioned(
+                  right: 10,
+                  top: 0,
+                  bottom: 0,
+                  child: Center(
+                    child: IconButton(
+                      icon: Icon(Icons.arrow_forward_ios),
+                      onPressed: () => _goToPage((_currentPage + 1) % widget.cards.length),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }

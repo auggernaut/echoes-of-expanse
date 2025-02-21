@@ -144,6 +144,19 @@ List<AdventureCard> threatCards = [
     frontAsset: 'assets/images/adventure_cards/sweeping_darkness_front.png',
     backAsset: 'assets/images/adventure_cards/sweeping_darkness_back.png',
   ),
+  AdventureCard(
+    name: "Blood King",
+    type: 'Threat',
+    frontAsset: 'assets/images/adventure_cards/blood_king_front.png',
+    backAsset: 'assets/images/adventure_cards/blood_king_back.png',
+  ),
+  AdventureCard(
+    name: "Blood Servants",
+    type: 'Threat',
+    frontAsset: 'assets/images/adventure_cards/blood_servants_front.png',
+    backAsset: 'assets/images/adventure_cards/blood_servants_back.png',
+  ),
+
   // Add more monster cards...
 ];
 
@@ -195,6 +208,12 @@ List<AdventureCard> characterCards = [
     type: 'Character',
     frontAsset: 'assets/images/adventure_cards/zarzzizol_fastwing_front.png',
     backAsset: 'assets/images/adventure_cards/zarzzizol_fastwing_back.png',
+  ),
+  AdventureCard(
+    name: 'Blood Prisoner',
+    type: 'Character',
+    frontAsset: 'assets/images/adventure_cards/blood_prisoner_front.png',
+    backAsset: 'assets/images/adventure_cards/blood_prisoner_back.png',
   ),
   // Add more character cards...
 ];
