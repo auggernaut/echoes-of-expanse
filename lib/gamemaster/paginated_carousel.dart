@@ -72,10 +72,7 @@ class _PaginatedCarouselState extends State<PaginatedCarousel> {
   }
 
   void _flipCurrentCard() {
-    print('Attempting to flip card at index: $_currentPage'); // Debug print
     if (_currentPage >= 0 && _currentPage < cardKeys.length) {
-      print('Card keys length: ${cardKeys.length}'); // Debug print
-      print('Current card key: ${cardKeys[_currentPage]}'); // Debug print
       cardKeys[_currentPage].currentState?.toggleCard();
       widget.onCardTap(widget.cards[_currentPage]);
     }
@@ -87,11 +84,8 @@ class _PaginatedCarouselState extends State<PaginatedCarousel> {
       focusNode: _focusNode,
       autofocus: true,
       onKey: (RawKeyEvent event) {
-        print('Key event received: ${event.logicalKey.keyLabel}'); // Debug print
         if (event is RawKeyDownEvent) {
-          print('KeyDown event: ${event.logicalKey.keyLabel}'); // Debug print
           if (event.logicalKey == LogicalKeyboardKey.space) {
-            print('Space bar pressed!'); // Debug print
             _flipCurrentCard();
           } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
             _pageController.previousPage(
@@ -104,7 +98,6 @@ class _PaginatedCarouselState extends State<PaginatedCarousel> {
       },
       child: GestureDetector(
         onTap: () {
-          print('Tap detected!'); // Debug print
           _flipCurrentCard();
         },
         child: LayoutBuilder(

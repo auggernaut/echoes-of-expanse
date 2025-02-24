@@ -1,7 +1,5 @@
 import 'package:echoes_of_expanse/player/character_creation_manager.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class IntroPage extends StatelessWidget {
   const IntroPage({super.key});
@@ -14,36 +12,22 @@ class IntroPage extends StatelessWidget {
           children: [
             SingleChildScrollView(
               child: Center(
-                // Wrap Column with Center
                 child: ConstrainedBox(
-                  // Apply ConstrainedBox here
-                  constraints:
-                      BoxConstraints(maxWidth: 1000), // Set maxWidth to 1000 for all content
-
+                  constraints: BoxConstraints(maxWidth: 1000),
                   child: Column(
                     children: [
                       titleSection(context, constraints),
+                      SizedBox(height: 40),
+                      choosePathSection(context),
                       SizedBox(height: 100),
                       whatIsThisSection(context, constraints),
                       whereDidThisComeFromSection(context),
                       howIsThisDifferent(context),
                       whatsNext(context),
                       getStartedSection(context),
-                      SizedBox(height: 100),
                     ],
                   ),
                 ),
-              ),
-            ),
-            Positioned(
-              right: 16,
-              bottom: 16,
-              child: IconButton(
-                icon: Icon(Icons.computer, color: Colors.blue),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/gamemaster');
-                },
-                tooltip: 'Gamemaster Mode',
               ),
             ),
           ],
@@ -65,23 +49,9 @@ class IntroPage extends StatelessWidget {
     Widget introText = Padding(
       padding: const EdgeInsets.only(bottom: 16.0, right: 16.0, left: 16.0),
       child: Text(
-        // "Dive into an epic tabletop roleplay adventure where fast, easy setup meets rich character development. Whether you're a newcomer or an experienced player, this game is designed to get you started quickly while offering a deep, narrative-driven experience.",
-        "The tabletop roleplay game without all the fuss.",
-        // "Build an epic character in 5 minutes.",
+        "Dive into an epic tabletop roleplay adventure that anyone can learn and play with 5 minutes of setup.",
         textAlign: isDesktopLayout ? TextAlign.left : TextAlign.center,
         style: Theme.of(context).textTheme.bodyLarge,
-      ),
-    );
-    Widget startButton = Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => CharacterCreationManager()),
-          );
-        },
-        child: const Text("Make a character in 1 min"),
       ),
     );
 
@@ -89,14 +59,14 @@ class IntroPage extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: isDesktopLayout ? 1000 : 600),
         child: isDesktopLayout
-            ? titleSectionDesktopLayout(logoImage, brandImage, introText, startButton)
-            : titleSectionMobileLayout(logoImage, brandImage, introText, startButton),
+            ? titleSectionDesktopLayout(logoImage, brandImage, introText)
+            : titleSectionMobileLayout(logoImage, brandImage, introText),
       ),
     );
   }
 
   Widget titleSectionDesktopLayout(
-      Widget logoImage, Widget brandImage, Widget introText, Widget startButton) {
+      Widget logoImage, Widget brandImage, Widget introText) {
     return Row(
       children: [
         Expanded(
@@ -107,7 +77,6 @@ class IntroPage extends StatelessWidget {
             children: [
               logoImage,
               introText,
-              startButton,
             ],
           ),
         ),
@@ -120,16 +89,121 @@ class IntroPage extends StatelessWidget {
   }
 
   Widget titleSectionMobileLayout(
-      Widget logoImage, Widget brandImage, Widget introText, Widget startButton) {
+      Widget logoImage, Widget brandImage, Widget introText) {
     return SingleChildScrollView(
       child: Column(
         children: [
           logoImage,
           introText,
           brandImage,
-          startButton,
         ],
       ),
+    );
+  }
+
+  Widget choosePathSection(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        bool isMobileLayout = constraints.maxWidth < 600;
+        
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                "Choose Your Path",
+                style: Theme.of(context).textTheme.displayLarge,
+              ),
+              SizedBox(height: 24),
+              // Use Column instead of Row for mobile layout
+              isMobileLayout
+                  ? Column(
+                      children: [
+                        _buildPathOption(
+                          context,
+                          "Gamemaster",
+                          "Are you the holder of secrets and arbiter of justice?",
+                          "CREATE A GAME",
+                          () => Navigator.pushNamed(context, '/gamemaster'),
+                        ),
+                        SizedBox(height: 24), // Add spacing between options
+                        _buildPathOption(
+                          context,
+                          "Character",
+                          "Are you a bold adventurer?",
+                          "CREATE A CHARACTER",
+                          () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => CharacterCreationManager()),
+                          ),
+                        ),
+                      ],
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: _buildPathOption(
+                              context,
+                              "Gamemaster",
+                              "Are you the holder of secrets and arbiter of justice?",
+                              "CREATE A GAME",
+                              () => Navigator.pushNamed(context, '/gamemaster'),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: _buildPathOption(
+                              context,
+                              "Character",
+                              "Are you the treasure seeker and problem solver?",
+                              "CREATE A CHARACTER",
+                              () => Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => CharacterCreationManager()),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Helper method to reduce code duplication
+  Widget _buildPathOption(
+    BuildContext context,
+    String title,
+    String description,
+    String buttonText,
+    VoidCallback onPressed,
+  ) {
+    return Column(
+      children: [
+        Text(
+          title,
+          style: Theme.of(context).textTheme.headlineLarge,
+        ),
+        Text(
+          description,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: onPressed,
+          child: Text(buttonText),
+        ),
+      ],
     );
   }
 
@@ -159,9 +233,9 @@ class IntroPage extends StatelessWidget {
           2),
       benefitItem(
           context,
-          'Compatible with Dungeon World',
-          "While optimized for shorter-term play, you can run Echoes of Expanse with any Dungeon World dungeon starter. Just map Wisdom, Intelligence to Smarts; Dexterity, Strength to Power; and Constitution to Grit.",
-          'assets/images/dw-use-logo.jpeg',
+          'All-in-one',
+          "You dont need any other vtts to play. Our virtual tabletop is built right into the app. Gamemaster adds Location, Character, Threat, and Items cards to a shared screen. Players can read and interact with the cards and move character tokens around the space.",
+          'assets/images/vtt.png',
           isMobileLayout,
           3),
     ];
@@ -237,9 +311,8 @@ class IntroPage extends StatelessWidget {
           ),
           SizedBox(height: 8.0), // Add some spacing between headline and body text
           Text(
-            "Echoes of Expanse is a creation of Augustin Bralley, 2024. " +
-                "Licensed under the Creative Commons Attribution-ShareAlike 3.0 United States (CC BY-SA 3.0 US). " +
-                "Echoes of Expanse is based on Homebrew World, a mod of Dungeon World, which is Powered by the Apocalypse.",
+
+                "Echoes of Expanse is a fork of Homebrew World, a mod of Dungeon World, and Powered by the Apocalypse.",
             style: Theme.of(context).textTheme.bodyMedium,
           )
         ]));
@@ -279,7 +352,7 @@ class IntroPage extends StatelessWidget {
           ),
           SizedBox(height: 8.0), // Add some spacing between headline and body text
           Text(
-            "Coming soon are more character classes, new tools for Gamemasters, and starter adventure decks. Join us on our Discord (coming soon) to stay up to date and contribute to the evolution of Echoes of Expanse!",
+            "Coming soon are more character classes, new tools for Gamemasters, and multiple adventure decks. Join us on our Discord (coming soon) to stay up to date and contribute to the evolution of Echoes of Expanse!",
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ]));
@@ -302,6 +375,11 @@ class IntroPage extends StatelessWidget {
             );
           },
           child: Text("Build your character for free"),
+        ),
+        SizedBox(height: 100),
+        Text(
+          "Echoes of Expanse is a creation of Augustin Bralley, 2025.\nLicensed under the Creative Commons Attribution-ShareAlike 3.0 United States (CC BY-SA 3.0 US).",
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
       ],
     );
