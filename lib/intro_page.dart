@@ -65,8 +65,7 @@ class IntroPage extends StatelessWidget {
     );
   }
 
-  Widget titleSectionDesktopLayout(
-      Widget logoImage, Widget brandImage, Widget introText) {
+  Widget titleSectionDesktopLayout(Widget logoImage, Widget brandImage, Widget introText) {
     return Row(
       children: [
         Expanded(
@@ -88,8 +87,7 @@ class IntroPage extends StatelessWidget {
     );
   }
 
-  Widget titleSectionMobileLayout(
-      Widget logoImage, Widget brandImage, Widget introText) {
+  Widget titleSectionMobileLayout(Widget logoImage, Widget brandImage, Widget introText) {
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -105,7 +103,7 @@ class IntroPage extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         bool isMobileLayout = constraints.maxWidth < 600;
-        
+
         return Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
@@ -123,7 +121,7 @@ class IntroPage extends StatelessWidget {
                         _buildPathOption(
                           context,
                           "Gamemaster",
-                          "Are you the holder of secrets and arbiter of justice?",
+                          "Are you a holder of secrets and arbiter of justice?",
                           "CREATE A GAME",
                           () => Navigator.pushNamed(context, '/gamemaster'),
                         ),
@@ -131,7 +129,7 @@ class IntroPage extends StatelessWidget {
                         _buildPathOption(
                           context,
                           "Character",
-                          "Are you a bold adventurer?",
+                          "Are you a treasure seeker and problem solver?",
                           "CREATE A CHARACTER",
                           () => Navigator.push(
                             context,
@@ -149,7 +147,7 @@ class IntroPage extends StatelessWidget {
                             child: _buildPathOption(
                               context,
                               "Gamemaster",
-                              "Are you the holder of secrets and arbiter of justice?",
+                              "Are you a holder of secrets and arbiter of justice?",
                               "CREATE A GAME",
                               () => Navigator.pushNamed(context, '/gamemaster'),
                             ),
@@ -161,7 +159,7 @@ class IntroPage extends StatelessWidget {
                             child: _buildPathOption(
                               context,
                               "Character",
-                              "Are you the treasure seeker and problem solver?",
+                              "Are you a treasure seeker and problem solver?",
                               "CREATE A CHARACTER",
                               () => Navigator.push(
                                 context,
@@ -311,8 +309,7 @@ class IntroPage extends StatelessWidget {
           ),
           SizedBox(height: 8.0), // Add some spacing between headline and body text
           Text(
-
-                "Echoes of Expanse is a fork of Homebrew World, a mod of Dungeon World, and Powered by the Apocalypse.",
+            "For the past 8 years, I have been passionate about making tabletop role-playing games more accessible. My first attempt was a mobile app that radically simplified roleplay into \"say what you try and roll\". Then I made a card game where cards had prompts for story ideas. Both of these failed to strike the right balance between storytelling and game mechanics. Then I discovered Dungeon World… I was so impressed by its design that I was inspired to try again taking a cue from their approach.",
             style: Theme.of(context).textTheme.bodyMedium,
           )
         ]));
@@ -360,6 +357,7 @@ class IntroPage extends StatelessWidget {
 
   Widget getStartedSection(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         SizedBox(height: 20),
         Text(
@@ -376,11 +374,13 @@ class IntroPage extends StatelessWidget {
           },
           child: Text("Build your character for free"),
         ),
-        SizedBox(height: 100),
+        SizedBox(height: 80),
         Text(
-          "Echoes of Expanse is a creation of Augustin Bralley, 2025.\nLicensed under the Creative Commons Attribution-ShareAlike 3.0 United States (CC BY-SA 3.0 US).",
-          style: Theme.of(context).textTheme.bodyMedium,
+          "Echoes of Expanse is a creation of Augustin Bralley, 2025. \nLicensed under the Creative Commons Attribution-ShareAlike 3.0 United States (CC BY-SA 3.0 US).",
+          style: Theme.of(context).textTheme.bodySmall,
+          textAlign: TextAlign.center,
         ),
+        SizedBox(height: 100),
       ],
     );
   }

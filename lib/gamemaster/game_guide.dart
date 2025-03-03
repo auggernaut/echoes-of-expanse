@@ -19,7 +19,7 @@ class _GameGuideState extends State<GameGuide> with SingleTickerProviderStateMix
 
     _elements.add(HeaderTextElement("Starting the Game"));
     _elements.add(GuideTextElement(
-        "Pick one Adventure Hook card. Read it aloud to the players. Designate an owner of the card and hand it to them. They are responsible for the actions on the back of the card."));
+        "Pick one Adventure Hook card. Read it aloud to the players. Designate an owner of the card and hand it to them. They are responsible for the actions on the back of the card.\n\nGo around the table and have each player introduce their character and establish bonds with other characters."));
 
     _elements.add(HeaderTextElement("Countdown"));
     _elements.add(GuideTextElement(
@@ -35,7 +35,7 @@ class _GameGuideState extends State<GameGuide> with SingleTickerProviderStateMix
 
     // Second tab content
     _runningGameElements.add(HeaderTextElement("Game Loop"));
-    _runningGameElements.add(GuideTextElement("1. Draw a card.\n"
+    _runningGameElements.add(GuideTextElement("1. Draw a Location card.\n"
         "2. Read the intro paragraph on the front of the card.\n"
         "3. Ask \"What do you do?\"\n"
         "4. When the players ask questions and explore, reveal hidden details (denoted by ▶).\n"
@@ -136,7 +136,7 @@ class _GameGuideState extends State<GameGuide> with SingleTickerProviderStateMix
             unselectedLabelColor: Colors.black54, // Make inactive tabs grey
             indicatorColor: Colors.black, // Make the selected tab indicator black
             tabs: const [
-              Tab(text: 'Outline'),
+              Tab(text: 'Start'),
               Tab(text: 'Gameplay'),
               Tab(text: 'Endgame'),
             ],

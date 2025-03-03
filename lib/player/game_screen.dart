@@ -237,16 +237,12 @@ class _GameScreenState extends State<GameScreen> {
           }
         },
       ),
-      floatingActionButton: Positioned(
-        left: 16,
-        bottom: 16,
-        child: FloatingActionButton(
-          onPressed: () => _showDiceRoller(context),
-          child: Image.asset(
-            'assets/images/d6.png',
-            height: 40,
-            width: 40,
-          ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showDiceRoller(context),
+        child: Image.asset(
+          'assets/images/d6.png',
+          height: 40,
+          width: 40,
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
